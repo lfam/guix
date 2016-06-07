@@ -67,6 +67,7 @@
   #:use-module (gnu packages image)
   #:use-module (gnu packages imagemagick)
   #:use-module (gnu packages java)
+  #:use-module (gnu packages libusb)
   #:use-module (gnu packages linux) ; for alsa-utils
   #:use-module (gnu packages man)
   #:use-module (gnu packages mp3)
@@ -76,6 +77,7 @@
   #:use-module (gnu packages pdf)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages pkg-config)
+  #:use-module (gnu packages protobuf)
   #:use-module (gnu packages pulseaudio) ;libsndfile
   #:use-module (gnu packages python)
   #:use-module (gnu packages qt)
@@ -87,6 +89,7 @@
   #:use-module (gnu packages texinfo)
   #:use-module (gnu packages tex)
   #:use-module (gnu packages tls)
+  #:use-module (gnu packages version-control)
   #:use-module (gnu packages video)
   #:use-module (gnu packages web)
   #:use-module (gnu packages wxwidgets)
@@ -1590,3 +1593,84 @@ for improved Amiga ProTracker 2/3 compatibility.")
 formats, including most audio formats recognized by FFMpeg.")
     (home-page "http://moc.daper.net")
     (license license:gpl2+)))
+
+(define-public mixxx
+  (package
+    (name "mixxx")
+    (version "1.11.0")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append "http://downloads.mixxx.org/mixxx-"
+                                  version "/mixxx-" version "-src.tar.gz"))
+              (sha256
+               (base32
+                "0c833gf4169xvpfn7car9vzvwfwl9d3xwmbfsy36cv8ydifip5h0"))
+;;; TODO delete all the bundled code in 'lib/'
+;              (modules '((guix build utils)))
+;              (snippet
+;               '(begin
+;                  (delete-file-recursively "lib/soundtouch-1.6.0")))
+              ))
+    (build-system gnu-build-system)
+    (arguments
+     `(#:tests? #f ; TODO
+       #:phases
+       (modify-phases %standard-phases
+         ;; Mixxx uses the Scons build system, so there is no configure script.
+         (delete 'configure)
+         (add-after 'unpack 'scons-propagate-environment
+           (lambda _
+             (substitute* "SConstruct"
+               (("env = Environment\\(\\)")
+                 "env = Environment(ENV=os.environ)"))
+             #t))
+         (replace 'build
+           (lambda* (#:key inputs outputs #:allow-other-keys)
+             (let ((out (assoc-ref outputs "out"))
+                   (qt  (assoc-ref inputs "qt-4")))
+               ;; The build process errors out if the 'prefix' directory
+               ;; does not exist.
+               (mkdir-p out)
+               (zero? (system* "scons"
+                               (string-append "prefix=" out)
+                               (string-append "qtdir=" qt))))))
+         (replace 'install
+           (lambda* (#:key inputs outputs #:allow-other-keys)
+             (let ((out (assoc-ref outputs "out"))
+                   (qt  (assoc-ref inputs "qt-4")))
+               (zero? (system* "scons"
+                               (string-append "prefix=" out)
+                               (string-append "qtdir=" qt)
+                               "install"))))))))
+    (native-inputs
+     `(("pkg-config" ,pkg-config)
+       ("scons" ,scons)
+       ("which" ,which)))
+    (inputs
+     `(("fftw" ,fftw)
+       ("flac" ,flac)
+       ("glu" ,glu)
+       ("libid3tag" ,libid3tag)
+       ("libmad" ,libmad)
+       ("libogg" ,libogg)
+       ("libshout" ,libshout)
+       ("libsndfile" ,libsndfile)
+       ("libusb" ,libusb)
+       ("libvorbis" ,libvorbis)
+       ("mesa" ,mesa)
+       ("portaudio" ,portaudio)
+       ("portmidi" ,portmidi)
+       ("protobuf" ,protobuf)
+       ("qt-4" ,qt-4)
+       ("soundtouch" ,soundtouch)
+       ("taglib" ,taglib)
+       ("vamp" ,vamp)))
+    (synopsis "DJ program")
+    (description "Mixxx is a DJ program.  Up to 4 songs can be mixed
+together in real time with tools such as equalizers, loops, cue points,
+effects, and automatic beat and key detection.  It can be controlled
+with a computer keyboard and mouse, MIDI and HID controllers, CD
+players, and timecode vinyl records.  Mixxx can also broadcast music to
+an Internet radio server using the SHOUTcast protocol.")
+    (home-page "https://mixxx.org/")
+    (license license:gpl2+))) ; TODO audit licenses
