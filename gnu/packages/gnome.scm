@@ -2447,8 +2447,9 @@ output devices.")
                        (substitute* "configure"
                          (("/bin/true") (which "true"))))))))
     (native-inputs
-     `(("pkg-config" ,pkg-config)
-       ("intltool" ,intltool)))
+     `(("gobject-introspection" ,gobject-introspection)
+       ("intltool" ,intltool)
+       ("pkg-config" ,pkg-config)))
     (inputs
      `(("avahi" ,avahi)
        ("glib" ,glib)
