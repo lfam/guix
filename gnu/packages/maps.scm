@@ -32,7 +32,7 @@
 (define-public gnome-maps
   (package
     (name "gnome-maps")
-    (version "3.18.2")
+    (version "3.20.1")
     (source (origin
               (method url-fetch)
               (uri (string-append "mirror://gnome/sources/" name "/"
@@ -40,23 +40,34 @@
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "0y4jmh5hwskh2mnladh9hxp9k8as7crm8wwwiifvxsjjj9az2gv9"))))
+                "1mcvx72wy3h6h0mk15gr5zdw5j4dbrxxd130vg8xbzzx7h5d2x28"))))
     (build-system glib-or-gtk-build-system)
     (arguments
-     `(#:phases
+     `(
+;;; This seems to have no effect. Perhaps the software does not use these
+;;; environment variables?
+;       #:configure-flags
+;       (list (string-append "LDFLAGS=-L"
+;                            (assoc-ref %build-inputs "webkitgtk") "/lib"
+;                            " -lwebkit2gtk-4.0 -ljavascriptcoregtk-4.0"
+;                            )
+;             (string-append "CFLAGS=-I"
+;                            (assoc-ref %build-inputs "webkitgtk") "/include"
+;                            )
+;             )
+       #:phases
        (modify-phases %standard-phases
          (add-after
           'install 'wrap
           (lambda* (#:key inputs outputs #:allow-other-keys)
             (let ((out (assoc-ref outputs "out"))
-                  (gi-typelib-path (getenv "GI_TYPELIB_PATH"))
-                  (goa-path (string-append
-                              (assoc-ref inputs "gnome-online-accounts")
-                              "/lib")))
+                  (gi-typelib-path (getenv "GI_TYPELIB_PATH")))
               (wrap-program (string-append out "/bin/gnome-maps")
                `("GI_TYPELIB_PATH" ":" prefix (,gi-typelib-path))
-               `("LD_LIBRARY_PATH" ":" prefix (,goa-path)))
-              #t))))))
+               `("LD_LIBRARY_PATH" ":" prefix
+                 ,(map (lambda (input)
+                         (string-append (assoc-ref inputs input) "/lib"))
+                       '("gnome-online-accounts" "webkitgtk" "geoclue"))))))))))
     (native-inputs
      `(("gobject-introspection" ,gobject-introspection)
        ("intltool" ,intltool)
@@ -65,6 +76,8 @@
      `(("folks" ,folks)
        ("libchamplain" ,libchamplain)
        ("libgee" ,libgee)
+       ("libgweather" ,libgweather)
+       ("libsecret" ,libsecret)
        ("libxml2" ,libxml2)
        ("geoclue" ,geoclue)
        ("geocode-glib" ,geocode-glib)
