@@ -4008,7 +4008,7 @@ configuration program to choose applications starting on login.")
 (define-public gjs
   (package
     (name "gjs")
-    (version "1.44.0")
+    (version "1.45.3")
     (source (origin
               (method url-fetch)
               (uri (string-append "mirror://gnome/sources/" name "/"
@@ -4016,7 +4016,7 @@ configuration program to choose applications starting on login.")
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "106fgpr4y99sj68l72pnfa2za11ps4bn6p9z28fr79j7mpv61jc8"))
+                "0ajdzfnkbw43lsds7gcx1028axrn0a3q250y8rg8xvl4gq9wh1r8"))
               (modules '((guix build utils)))
               (snippet '(substitute* "test/run-with-dbus"
                           (("/bin/rm") "rm")))))
