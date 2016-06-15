@@ -35,7 +35,7 @@
 (define-public gnome-maps
   (package
     (name "gnome-maps")
-    (version "3.18.2")
+    (version "3.20.1")
     (source (origin
               (method url-fetch)
               (uri (string-append "mirror://gnome/sources/" name "/"
@@ -43,7 +43,7 @@
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "0y4jmh5hwskh2mnladh9hxp9k8as7crm8wwwiifvxsjjj9az2gv9"))))
+                "1mcvx72wy3h6h0mk15gr5zdw5j4dbrxxd130vg8xbzzx7h5d2x28"))))
     (build-system glib-or-gtk-build-system)
     (arguments
      `(#:configure-flags ; Ensure that geoclue is referred to by output.
@@ -57,16 +57,14 @@
           'install 'wrap
           (lambda* (#:key inputs outputs #:allow-other-keys)
             (let ((out (assoc-ref outputs "out"))
-                  (gi-typelib-path (getenv "GI_TYPELIB_PATH"))
-                  (goa-path (string-append
-                              (assoc-ref inputs "gnome-online-accounts")
-                              "/lib")))
+                  (gi-typelib-path (getenv "GI_TYPELIB_PATH")))
               (wrap-program (string-append out "/bin/gnome-maps")
-               `("GI_TYPELIB_PATH" ":" prefix (,gi-typelib-path))
-
-               ;; There seems to be no way to embed the path of libgoa-1.0.so.0.
-               `("LD_LIBRARY_PATH" ":" prefix (,goa-path)))
-              #t))))))
+               `("GI_TYPELIB_PATH" ":" prefix (,gi-typelib-path)))
+               `("LD_LIBRARY_PATH" ":" prefix
+                 ,(map (lambda (input)
+                         (string-append (assoc-ref inputs input) "/lib"))
+                       '("gnome-online-accounts" "webkitgtk" "geoclue" "gdk-pixbuf")))
+            #t))))))
     (native-inputs
      `(("gobject-introspection" ,gobject-introspection)
        ("intltool" ,intltool)
@@ -75,7 +73,10 @@
      `(("folks" ,folks)
        ("libchamplain" ,libchamplain)
        ("libgee" ,libgee)
+       ("libgweather" ,libgweather) ; necessary?
+       ("libsecret" ,libsecret) ; necessary?
        ("libxml2" ,libxml2)
+       ("gdk-pixbuf" ,gdk-pixbuf) ; necessary?
        ("geoclue" ,geoclue)
        ("geocode-glib" ,geocode-glib)
        ("gfbgraph" ,gfbgraph)
