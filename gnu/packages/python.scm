@@ -301,21 +301,19 @@ data types.")
 
 (define-public python-3.4
   (package (inherit python-2)
-    (version "3.4.3")
+    (version "3.4.4")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://www.python.org/ftp/python/"
                                   version "/Python-" version ".tar.xz"))
               (patches (search-patches
                         "python-fix-tests.patch"
-                        ;; XXX Try removing this patch for python > 3.4.3
-                        "python-disable-ssl-test.patch"
                         "python-3-deterministic-build-info.patch"
                         "python-3-search-paths.patch"))
               (patch-flags '("-p0"))
               (sha256
                (base32
-                "1f4nm4z08sy0kqwisvv95l02crv6dyysdmx44p1mz3bn6csrdcxm"))))
+                "18kb5c29w04rj4gyz3jngm72sy8izfnbjlm6ajv6rv2m061d75x7"))))
     (arguments (substitute-keyword-arguments (package-arguments python-2)
                  ((#:tests? _) #t)))
     (native-search-paths
