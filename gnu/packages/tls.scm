@@ -6,7 +6,7 @@
 ;;; Copyright © 2015 David Thompson <davet@gnu.org>
 ;;; Copyright © 2015 Leo Famulari <leo@famulari.name>
 ;;; Copyright © 2016 Efraim Flashner <efraim@flashner.co.il>
-;;; Copyright © 2016 Nils Gillmann <niasterisk@grrlz.net>
+;;; Copyright © 2016 ng0 <ng0@we.make.ritual.n0.is>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -36,6 +36,7 @@
   #:use-module (gnu packages guile)
   #:use-module (gnu packages libffi)
   #:use-module (gnu packages libidn)
+  #:use-module (gnu packages linux)
   #:use-module (gnu packages ncurses)
   #:use-module (gnu packages nettle)
   #:use-module (gnu packages perl)
@@ -108,7 +109,7 @@ living in the same process.")
 (define-public gnutls
   (package
     (name "gnutls")
-    (version "3.5.0")
+    (version "3.5.2")
     (source (origin
              (method url-fetch)
              (uri
@@ -119,7 +120,7 @@ living in the same process.")
                              "/gnutls-" version ".tar.xz"))
              (sha256
               (base32
-               "09dfb0fn4spmdja6hs2yl470fn85fx0pa5nn9njnq7j19ma3nszw"))))
+               "10l5pv7qc5c850aamih3pdkbqpc4v2a6g164dzd7c7fjpxffji9b"))))
     (build-system gnu-build-system)
     (arguments
      '(#:configure-flags
@@ -158,7 +159,8 @@ living in the same process.")
                "debug"
                "doc"))                            ;4.1 MiB of man pages
     (native-inputs
-     `(("pkg-config" ,pkg-config)
+     `(("net-tools" ,net-tools)
+       ("pkg-config" ,pkg-config)
        ("which" ,which)))
     (inputs
      `(("guile" ,guile-2.0)
@@ -324,7 +326,7 @@ required structures.")
 (define-public libressl
   (package
     (name "libressl")
-    (version "2.3.6")
+    (version "2.4.2")
     (source
      (origin
       (method url-fetch)
@@ -333,7 +335,7 @@ required structures.")
              version ".tar.gz"))
       (sha256
        (base32
-        "1yipsp1ici207nbminbf1knh252kzvqg036v0xpx0fw1wrwlg2im"))))
+        "1qyrcyzrrn6r9cqvm66ib72qyr65q4hrdyiq1vb24a6nwmwdg1sz"))))
     (build-system gnu-build-system)
     (native-search-paths
       ;; FIXME: These two variables must designate a single file or directory

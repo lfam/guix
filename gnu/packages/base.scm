@@ -535,6 +535,7 @@ store.")
             ;;
             ;; `--localedir' is not honored, so work around it.
             ;; See <http://sourceware.org/ml/libc-alpha/2013-03/msg00093.html>.
+            ;; FIXME: This hack no longer works on 2.23!
             (string-append "libc_cv_localedir=/run/current-system/locale/"
                            ,version)
 
@@ -719,11 +720,35 @@ GLIBC/HURD for a Hurd host"
 (define-syntax glibc
   (identifier-syntax (glibc-for-target)))
 
-(define-public glibc-2.21
+(define-public glibc-2.22
   ;; The old libc, which we use mostly to build locale data in the old format
   ;; (which the new libc can cope with.)
   (package
     (inherit glibc)
+    (version "2.22")
+    (source (origin
+              (inherit (package-source glibc))
+              (uri (string-append "mirror://gnu/glibc/glibc-"
+                                  version ".tar.xz"))
+              (sha256
+               (base32
+                "0j49682pm2nh4qbdw35bas82p1pgfnz4d2l7iwfyzvrvj0318wzb"))
+              (patches (search-patches "glibc-ldd-x86_64.patch"))))
+    (arguments
+      (substitute-keyword-arguments (package-arguments glibc)
+        ((#:phases phases)
+         `(modify-phases ,phases
+            (add-before 'configure 'fix-pwd
+              (lambda _
+                ;; Use `pwd' instead of `/bin/pwd' for glibc-2.21
+                (substitute* "configure"
+                  (("/bin/pwd") "pwd"))))))))))
+
+(define-public glibc-2.21
+  ;; The old libc, which we use mostly to build locale data in the old format
+  ;; (which the new libc can cope with.)
+  (package
+    (inherit glibc-2.22)
     (version "2.21")
     (source (origin
               (inherit (package-source glibc))
@@ -771,7 +796,7 @@ the 'share/locale' sub-directory of this package.")
          ((#:configure-flags flags)
           `(append ,flags
                    ;; Use $(libdir)/locale/X.Y as is the case by default.
-                   (list (string-append "libc_cv_localedir="
+                   (list (string-append "libc_cv_complocaledir="
                                         (assoc-ref %outputs "out")
                                         "/lib/locale/"
                                         ,(package-version glibc))))))))))

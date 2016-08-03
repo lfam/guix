@@ -7,6 +7,8 @@
 ;;; Copyright © 2015 Andy Patterson <ajpatter@uwaterloo.ca>
 ;;; Copyright © 2015 Ricardo Wurmus <rekado@elephly.net>
 ;;; Copyright © 2015 Alex Vong <alexvong1995@gmail.com>
+;;; Copyright © 2016 Alex Griffin <a@ajgrf.com>
+;;; Copyright © 2016 Kei Kebreau <kei@openmailbox.org>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -25,13 +27,17 @@
 
 (define-module (gnu packages video)
   #:use-module (ice-9 match)
+  #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-26)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix utils)
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (guix git-download)
+  #:use-module (guix svn-download)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system gnu)
+  #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix build-system python)
   #:use-module (guix build-system waf)
   #:use-module (gnu packages)
@@ -86,8 +92,8 @@
     (version "1.4rc5")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/aa-project/"
-                                  name "-" version ".tar.gz"))
+              (uri (string-append "mirror://sourceforge/aa-project/aa-lib/"
+                                  version "/" name "-" version ".tar.gz"))
               (sha256
                (base32
                 "1vkh19gb76agvh4h87ysbrgy82hrw88lnsvhynjf4vng629dmpgv"))))
@@ -304,7 +310,8 @@ streams.")
     (source (origin
               (method url-fetch)
               (uri (string-append
-                    "mirror://sourceforge/libdv/libdv-" version ".tar.gz"))
+                    "mirror://sourceforge/" name "/" name "/"
+                    version "/" name "-" version ".tar.gz"))
               (sha256
                (base32
                 "1fl96f2xh2slkv1i1ix7kqk576a0ak1d33cylm0mbhm96d0761d3"))))
@@ -373,14 +380,14 @@ standards (MPEG-2, MPEG-4 ASP/H.263, MPEG-4 AVC/H.264, and VC-1/VMW3).")
 (define-public ffmpeg
   (package
     (name "ffmpeg")
-    (version "3.0.2")
+    (version "3.1.1")
     (source (origin
              (method url-fetch)
              (uri (string-append "https://ffmpeg.org/releases/ffmpeg-"
                                  version ".tar.xz"))
              (sha256
               (base32
-               "08sjp4dxgcinmv9ly7nm24swmn2cnbbhvph44ihlplf4n33kr542"))))
+               "1nris3flwqd4v4b65yrrv9aqhsab7cb9lfp4wpxz6bi0m3r13g3i"))))
     (build-system gnu-build-system)
     (inputs
      `(("fontconfig" ,fontconfig)
@@ -539,14 +546,14 @@ audio/video codec library.")
 (define-public ffmpeg-2.8
   (package
     (inherit ffmpeg)
-    (version "2.8.6")
+    (version "2.8.7")
     (source (origin
              (method url-fetch)
              (uri (string-append "https://ffmpeg.org/releases/ffmpeg-"
                                  version ".tar.xz"))
              (sha256
               (base32
-               "1yh7dvm7zwdlsspdaq524s5qaggma5md9h95qc4kvb5dmyyyvg15"))))
+               "0z0mcj2q3ysp9qdn1ks03g5sn2zxyr06vxs4al0m4b5b3in8mglp"))))
     (arguments
      (substitute-keyword-arguments (package-arguments ffmpeg)
        ((#:configure-flags flags)
@@ -618,6 +625,12 @@ audio/video codec library.")
     (arguments
      `(#:configure-flags
        `("--disable-a52" ; FIXME: reenable once available
+
+         ;; Gross workaround for <https://trac.videolan.org/vlc/ticket/16907>.
+         ;; In our case, this led to a test failure:
+         ;;   test_libvlc_equalizer: libvlc/equalizer.c:122: test_equalizer: Assertion `isnan(libvlc_audio_equalizer_get_amp_at_index (equalizer, u_bands))' failed.
+         "ac_cv_c_fast_math=no"
+
          ,(string-append "LDFLAGS=-Wl,-rpath -Wl,"
                          (assoc-ref %build-inputs "ffmpeg")
                          "/lib"))                 ;needed for the tests
@@ -800,14 +813,7 @@ SVCD, DVD, 3ivx, DivX 3/4/5, WMV and H.264 movies.")
        ("pulseaudio" ,pulseaudio)
        ("rsound" ,rsound)
        ("vapoursynth" ,vapoursynth)
-       ("waf" ,(origin
-                 (method url-fetch)
-                 ;; Keep this in sync with the version in the bootstrap.py
-                 ;; script of the source tarball.
-                 (uri "http://www.freehackers.org/~tnagy/release/waf-1.8.12")
-                 (sha256
-                  (base32
-                   "12y9c352zwliw0zk9jm2lhynsjcf5jy0k1qch1c1av8hnbm2pgq1"))))
+       ("waf" ,python-waf)
        ("youtube-dl" ,youtube-dl)
        ("zlib" ,zlib)))
     (arguments
@@ -818,7 +824,7 @@ SVCD, DVD, 3ivx, DivX 3/4/5, WMV and H.264 movies.")
           (lambda* (#:key inputs #:allow-other-keys)
             (copy-file (assoc-ref inputs "waf") "waf")
             (setenv "CC" "gcc"))))
-       #:configure-flags (list "--enable-zsh-comp")
+       #:configure-flags (list "--enable-libmpv-shared" "--enable-zsh-comp")
        ;; No check function defined.
        #:tests? #f))
     (home-page "https://mpv.io/")
@@ -827,6 +833,34 @@ SVCD, DVD, 3ivx, DivX 3/4/5, WMV and H.264 movies.")
 fork of mplayer2 and MPlayer.  It shares some features with the former
 projects while introducing many more.")
     (license license:gpl2+)))
+
+(define-public gnome-mpv
+  (package
+    (name "gnome-mpv")
+    (version "0.9")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://github.com/gnome-mpv/gnome-mpv/releases"
+                           "/download/v" version "/gnome-mpv-" version
+                           ".tar.xz"))
+       (sha256
+        (base32
+         "06pgxl6f3kkgxv8nlmyl7gy3pg55sqf8vgr8m6426mlpm4p3qdn0"))))
+    (native-inputs
+     `(("intltool" ,intltool)
+       ("pkg-config" ,pkg-config)))
+    (inputs
+     `(("gtk+" ,gtk+)
+       ("libepoxy" ,libepoxy)
+       ("mpv" ,mpv)))
+    (build-system glib-or-gtk-build-system)
+    (home-page "https://github.com/gnome-mpv/gnome-mpv")
+    (synopsis "GTK+ frontend for the mpv media player")
+    (description "GNOME MPV is a simple GTK+ frontend for the mpv media player.
+GNOME MPV interacts with mpv via the client API exported by libmpv, allowing
+access to mpv's powerful playback capabilities.")
+    (license license:gpl3+)))
 
 (define-public libvpx
   (package
@@ -869,7 +903,7 @@ projects while introducing many more.")
 (define-public youtube-dl
   (package
     (name "youtube-dl")
-    (version "2016.06.14")
+    (version "2016.07.22")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://youtube-dl.org/downloads/"
@@ -877,7 +911,7 @@ projects while introducing many more.")
                                   version ".tar.gz"))
               (sha256
                (base32
-                "0fmvpqipc1xwagvk7ih4slmv1xz1rb6s8wpndhypwvrq4pnnm9ns"))))
+                "02wcxpcbpvsbvyxcnhhf94ma0x5dcg4fygnxxca2h31dp47dkak9"))))
     (build-system python-build-system)
     (home-page "https://youtube-dl.org")
     (arguments
@@ -910,15 +944,15 @@ YouTube.com and a few more sites.")
 (define-public libbluray
   (package
     (name "libbluray")
-    (version "0.9.2")
+    (version "0.9.3")
     (source (origin
               (method url-fetch)
-              (uri (string-append "http://download.videolan.org/videolan/"
+              (uri (string-append "https://download.videolan.org/videolan/"
                                   name "/" version "/"
                                   name "-" version ".tar.bz2"))
               (sha256
                (base32
-                "1sp71j4agcsg17g6b85cqz78pn5vknl5pl39rvr6mkib5ps99jgg"))))
+                "1q1whviqv5sr9nr372h31zwid1rvbfbx3z4lzr8lnj25xha6cdm6"))))
     (build-system gnu-build-system)
     (arguments `(#:configure-flags '("--disable-bdjava")))
     (native-inputs `(("pkg-config" ,pkg-config)))
@@ -926,7 +960,7 @@ YouTube.com and a few more sites.")
      `(("fontconfig" ,fontconfig)
        ("freetype" ,freetype)
        ("libxml2" ,libxml2)))
-    (home-page "http://www.videolan.org/developers/libbluray.html")
+    (home-page "https://www.videolan.org/developers/libbluray.html")
     (synopsis "Blu-Ray Disc playback library")
     (description
      "libbluray is a library designed for Blu-Ray Disc playback for media
@@ -1062,8 +1096,8 @@ for use with HTML5 video.")
     (source (origin
              (method url-fetch)
              (uri (string-append
-                   "mirror://sourceforge/avidemux/avidemux_"
-                   version ".tar.gz"))
+                   "mirror://sourceforge/" name "/" name "/" version "/"
+                   name "_" version ".tar.gz"))
              (sha256
               (base32
                "0nz52yih8sff53inndkh2dba759xjzsh4b8xjww419lcpk0qp6kn"))
@@ -1363,7 +1397,7 @@ be used for realtime video capture via Linux-specific APIs.")
 (define-public obs
   (package
     (name "obs")
-    (version "0.14.2")
+    (version "0.15.1")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://github.com/jp9000/obs-studio"
@@ -1371,9 +1405,23 @@ be used for realtime video capture via Linux-specific APIs.")
               (file-name (string-append name "-" version ".tar.gz"))
               (sha256
                (base32
-                "1cb8naa67kfnnngkzv1wpd4y241j29ggnk1w7jgnymp9j8dny1xl"))))
+                "18fycg7xlj2i89wdb9c5js0bnl964s1lpmnvmfyj11zi9k061wsg"))))
     (build-system cmake-build-system)
-    (arguments '(#:tests? #f)) ; no tests
+    (arguments
+     `(#:tests? #f ; no tests
+       ,@(if (any (cute string-prefix? <> (or (%current-target-system)
+                                              (%current-system)))
+                  '("arm" "mips"))
+           '(#:phases
+             (modify-phases %standard-phases
+             (add-after 'unpack 'remove-architecture-specific-instructions
+               ;; non-Intel platforms fail to build with the architecture
+               ;; specific compiler flags included by default.
+               (lambda _
+                 (substitute* "libobs/CMakeLists.txt"
+                              (("if\\(NOT MSVC\\)") "if(MSVC)"))
+                 #t))))
+           '())))
     (native-inputs
      `(("pkg-config" ,pkg-config)))
     (inputs
@@ -1478,3 +1526,39 @@ implementation.")
 your graphical desktop and encodes it as a video.  This is a useful tool for
 making @dfn{screencasts}.")
     (license license:gpl2+)))
+
+(define-public libsmpeg
+  (package
+    (name "libsmpeg")
+    (version "0.4.5")
+    (source (origin
+              (method svn-fetch)
+              (uri (svn-reference
+                    (url "svn://svn.icculus.org/smpeg/trunk/")
+                    (revision 401))) ; last revision before smpeg2 (for SDL 2.0)
+              (sha256
+               (base32
+                "18yfkr70lr1x1hc8snn2ldnbzdcc7b64xmkqrfk8w59gpg7sl1xn"))))
+    (build-system gnu-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'autogen.sh
+                    (lambda _
+                      (zero? (system* "sh" "autogen.sh")))))))
+    (native-inputs
+     `(("autoconf" ,autoconf)
+       ("automake" ,automake)))
+    (inputs
+     `(("sdl" ,sdl2)))
+    (home-page "http://icculus.org/smpeg/")
+    (synopsis "SDL MPEG decoding library")
+    (description
+     "SMPEG (SDL MPEG Player Library) is a free MPEG1 video player library
+with sound support.  Video playback is based on the ubiquitous Berkeley MPEG
+player, mpeg_play v2.2.  Audio is played through a slightly modified mpegsound
+library, part of splay v0.8.2.  SMPEG supports MPEG audio (MP3), MPEG-1 video,
+and MPEG system streams.")
+    (license (list license:expat
+                   license:lgpl2.1
+                   license:lgpl2.1+
+                   license:gpl2))))

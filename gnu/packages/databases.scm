@@ -8,7 +8,7 @@
 ;;; Copyright © 2015 Sou Bunnbu <iyzsong@gmail.com>
 ;;; Copyright © 2015 Leo Famulari <leo@famulari.name>
 ;;; Copyright © 2016 Efraim Flashner <efraim@flashner.co.il>
-;;; Copyright © 2016 Nils Gillmann <niasterisk@grrlz.net>
+;;; Copyright © 2016 ng0 <ng0@we.make.ritual.n0.is>
 ;;; Copyright © 2016 Roel Janssen <roel@gnu.org>
 ;;;
 ;;; This file is part of GNU Guix.
@@ -203,7 +203,7 @@ SQL, Key/Value, XML/XQuery or Java Object storage for their data model.")
 (define-public mysql
   (package
     (name "mysql")
-    (version "5.7.12")
+    (version "5.7.13")
     (source (origin
              (method url-fetch)
              (uri (list (string-append
@@ -213,9 +213,10 @@ SQL, Key/Value, XML/XQuery or Java Object storage for their data model.")
                         (string-append
                           "http://downloads.mysql.com/archives/get/file/"
                           name "-" version ".tar.gz")))
+             (patches (search-patches "mysql-fix-failing-test.patch"))
              (sha256
               (base32
-               "11qwbid666fspq143ymi86yva2b01lybaqh26k92rciasav3r11j"))))
+               "11qbib1xpy0zkki7j9ip17hks5kp5zgpcj7x8gy3a4m66lb1mgsh"))))
     (build-system cmake-build-system)
     (arguments
      '(#:configure-flags
@@ -276,7 +277,7 @@ Language.")
 (define-public mariadb
   (package
     (name "mariadb")
-    (version "10.1.14")
+    (version "10.1.16")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://downloads.mariadb.org/f/"
@@ -284,7 +285,7 @@ Language.")
                                   name "-" version ".tar.gz"))
               (sha256
                (base32
-                "04ysdbvj2qapfpaj7s5d2j3m8k9l0yb5k0c2yaini8jrl1s1krqq"))))
+                "14s3wq1c25n62n75hkixl8n7cni4m73w055nsx4czm655k33bjv7"))))
     (build-system cmake-build-system)
     (arguments
      '(#:configure-flags
@@ -481,7 +482,7 @@ for example from a shell script.")
 (define-public sqlite
   (package
    (name "sqlite")
-   (version "3.13.0")
+   (version "3.12.2")
    (source (origin
             (method url-fetch)
             ;; TODO: Download from sqlite.org once this bug :
@@ -512,7 +513,7 @@ for example from a shell script.")
                    ))
             (sha256
              (base32
-              "0sq88jbwsk48i41f7m7rkw9xvijq011nsbs7pl49s31inck70yg2"))))
+              "1fwss0i2lixv39b27gkqiibdd2syym90wh3qbiaxnfgxk867f07x"))))
    (build-system gnu-build-system)
    (inputs `(("readline" ,readline)))
    (arguments
@@ -764,21 +765,22 @@ columns, primary keys, unique constraints and relationships.")
        ("postgresql" ,postgresql)))
     (home-page "http://search.cpan.org/dist/DBD-Pg")
     (synopsis "DBI PostgreSQL interface")
-    (description "")
+    (description "This package provides a PostgreSQL driver for the Perl5
+@dfn{Database Interface} (DBI).")
     (license (package-license perl))))
 
 (define-public perl-dbd-mysql
   (package
     (name "perl-dbd-mysql")
-    (version "4.033")
+    (version "4.035")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "mirror://cpan/authors/id/C/CA/CAPTTOFU/"
+       (uri (string-append "mirror://cpan/authors/id/M/MI/MICHIELB/"
                            "DBD-mysql-" version ".tar.gz"))
        (sha256
         (base32
-         "0769xakykps0cx368g4vaips4w3bjk383rianiavq7sq6g6bp66c"))))
+         "0dqrnrk8yjl06xl8hld5wyalk77z0h9j5h1gdk4z9g0nx9js7v5p"))))
     (build-system perl-build-system)
     ;; Tests require running MySQL server
     (arguments `(#:tests? #f))
@@ -1030,3 +1032,35 @@ trees (LSM), for sustained throughput under random insert workloads.")
     (license gpl3) ; or GPL-2
     ;; configure.ac: WiredTiger requires a 64-bit build.
     (supported-systems '("x86_64-linux" "mips64el-linux"))))
+
+(define-public perl-db-file
+ (package
+  (name "perl-db-file")
+  (version "1.838")
+  (source
+    (origin
+      (method url-fetch)
+      (uri (string-append
+             "mirror://cpan/authors/id/P/PM/PMQS/DB_File-"
+             version
+             ".tar.gz"))
+      (sha256
+        (base32
+          "0yp5d5zr8dk9g6xdh7ygi5bq63q7nxvhd58dk2i3ki4nb7yv2yh9"))))
+  (build-system perl-build-system)
+  (inputs `(("bdb" ,bdb)))
+  (native-inputs `(("perl-test-pod" ,perl-test-pod)))
+  (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-before
+                   'configure 'modify-config.in
+                   (lambda* (#:key inputs #:allow-other-keys)
+                     (substitute* "config.in"
+                       (("/usr/local/BerkeleyDB") (assoc-ref inputs "bdb")))
+                     #t)))))
+  (home-page "http://search.cpan.org/dist/DB_File")
+  (synopsis
+    "Perl5 access to Berkeley DB version 1.x")
+  (description
+    "The DB::File module provides Perl bindings to the Berkeley DB version 1.x.")
+  (license (package-license perl))))

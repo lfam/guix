@@ -207,7 +207,7 @@ module.")
 (define-public perl-xml-libxml
   (package
     (name "perl-xml-libxml")
-    (version "2.0125")
+    (version "2.0128")
     (source
      (origin
        (method url-fetch)
@@ -215,7 +215,7 @@ module.")
                            "XML-LibXML-" version ".tar.gz"))
        (sha256
         (base32
-         "1mvbv1pwpdqni9ia9b6brg8brnnvfxr8j5x872qsngc92gipyh01"))))
+         "0awgd2gjzy7kn38bqblsigikzl81xsi561phkz9f9b9v3x2vmrr6"))))
     (build-system perl-build-system)
     (propagated-inputs
      `(("perl-xml-namespacesupport" ,perl-xml-namespacesupport)
@@ -532,16 +532,15 @@ server, collect the answer, and finally decoding the XML to Perl.")
 (define-public pugixml
   (package
     (name "pugixml")
-    (version "1.6")
+    (version "1.7")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "https://github.com/zeux/pugixml/archive/v"
-                          version ".tar.gz"))
-      (file-name (string-append name "-" version ".tar.gz"))
+      (uri (string-append "https://github.com/zeux/pugixml/releases/download/v"
+                          version "/pugixml-" version ".tar.gz"))
       (sha256
        (base32
-        "0czbcv9aqf2rw3s9cljz2wb1f4zbhd07wnj7ykklklccl0ipfnwi"))))
+        "1jpml475kbhs1aqwa48g2cbfxlrb9qp115m2j9yryxhxyr30vqgv"))))
     (build-system cmake-build-system)
     (arguments
      `(#:tests? #f
@@ -657,7 +656,8 @@ UTF-8 and UTF-16 encoding.")
     (version "2.6.2")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/tinyxml/tinyxml_"
+              (uri (string-append "mirror://sourceforge/tinyxml/tinyxml/"
+                                  version "/tinyxml_"
                                   (string-join (string-split version #\.) "_")
                                   ".tar.gz"))
               (sha256

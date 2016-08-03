@@ -103,7 +103,9 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/dvtm.scm				\
   %D%/packages/ebook.scm			\
   %D%/packages/ed.scm				\
+  %D%/packages/education.scm			\
   %D%/packages/elf.scm				\
+  %D%/packages/elixir.scm			\
   %D%/packages/emacs.scm			\
   %D%/packages/enchant.scm			\
   %D%/packages/engineering.scm			\
@@ -150,6 +152,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/gnustep.scm			\
   %D%/packages/gnuzilla.scm			\
   %D%/packages/gnu-pw-mgr.scm			\
+  %D%/packages/golang.scm			\
   %D%/packages/gperf.scm			\
   %D%/packages/gprolog.scm			\
   %D%/packages/gps.scm				\
@@ -165,6 +168,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/gv.scm				\
   %D%/packages/gxmessage.scm			\
   %D%/packages/haskell.scm			\
+  %D%/packages/hexedit.scm			\
   %D%/packages/hugs.scm				\
   %D%/packages/hurd.scm				\
   %D%/packages/ibus.scm				\
@@ -214,7 +218,6 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/llvm.scm				\
   %D%/packages/lout.scm				\
   %D%/packages/logging.scm			\
-  %D%/packages/lsh.scm				\
   %D%/packages/lsof.scm				\
   %D%/packages/lua.scm				\
   %D%/packages/lxde.scm				\
@@ -315,6 +318,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/slim.scm				\
   %D%/packages/smalltalk.scm			\
   %D%/packages/speech.scm			\
+  %D%/packages/spice.scm			\
   %D%/packages/ssh.scm				\
   %D%/packages/stalonetray.scm			\
   %D%/packages/statistics.scm			\
@@ -441,7 +445,6 @@ dist_patch_DATA =						\
   %D%/packages/patches/automake-test-gzip-warning.patch		\
   %D%/packages/patches/avahi-localstatedir.patch		\
   %D%/packages/patches/avidemux-install-to-lib.patch		\
-  %D%/packages/patches/avrdude-fix-libusb.patch			\
   %D%/packages/patches/awesome-reproducible-png.patch		\
   %D%/packages/patches/bash-completion-directories.patch	\
   %D%/packages/patches/beets-image-test-failure.patch		\
@@ -454,6 +457,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/cdparanoia-fpic.patch			\
   %D%/packages/patches/chmlib-inttypes.patch			\
   %D%/packages/patches/clang-libc-search-path.patch		\
+  %D%/packages/patches/clang-3.8-libc-search-path.patch		\
   %D%/packages/patches/clucene-pkgconfig.patch			\
   %D%/packages/patches/cmake-fix-tests.patch			\
   %D%/packages/patches/cpio-gets-undeclared.patch		\
@@ -467,9 +471,9 @@ dist_patch_DATA =						\
   %D%/packages/patches/clucene-contribs-lib.patch               \
   %D%/packages/patches/cursynth-wave-rand.patch			\
   %D%/packages/patches/dbus-helper-search-path.patch		\
-  %D%/packages/patches/dealii-p4est-interface.patch		\
   %D%/packages/patches/devil-CVE-2009-3994.patch		\
   %D%/packages/patches/devil-fix-libpng.patch			\
+  %D%/packages/patches/dico-idxgcide-bug.patch			\
   %D%/packages/patches/dico-libtool-deterministic.patch		\
   %D%/packages/patches/diffutils-gets-undeclared.patch		\
   %D%/packages/patches/dfu-programmer-fix-libusb.patch		\
@@ -479,6 +483,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/duplicity-piped-password.patch		\
   %D%/packages/patches/duplicity-test_selection-tmp.patch	\
   %D%/packages/patches/elfutils-tests-ptrace.patch		\
+  %D%/packages/patches/elixir-disable-failing-tests.patch	\
   %D%/packages/patches/einstein-build.patch			\
   %D%/packages/patches/emacs-exec-path.patch			\
   %D%/packages/patches/emacs-fix-scheme-indent-function.patch	\
@@ -511,10 +516,13 @@ dist_patch_DATA =						\
   %D%/packages/patches/gcc-cross-environment-variables.patch	\
   %D%/packages/patches/gcc-libvtv-runpath.patch			\
   %D%/packages/patches/gcc-5.0-libvtv-runpath.patch		\
+  %D%/packages/patches/gd-fix-gd2-read-test.patch		\
+  %D%/packages/patches/gd-fix-tests-on-i686.patch		\
   %D%/packages/patches/gegl-CVE-2012-4433.patch			\
   %D%/packages/patches/geoclue-config.patch			\
   %D%/packages/patches/ghostscript-CVE-2015-3228.patch		\
   %D%/packages/patches/ghostscript-runpath.patch		\
+  %D%/packages/patches/gimp-CVE-2016-4994.patch			\
   %D%/packages/patches/glib-networking-ssl-cert-file.patch	\
   %D%/packages/patches/glib-tests-timer.patch			\
   %D%/packages/patches/glibc-bootstrap-system.patch		\
@@ -590,6 +598,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/jasper-CVE-2016-2089.patch		\
   %D%/packages/patches/jasper-CVE-2016-2116.patch		\
   %D%/packages/patches/jbig2dec-ignore-testtest.patch		\
+  %D%/packages/patches/khmer-use-libraries.patch                \
   %D%/packages/patches/kmod-module-directory.patch		\
   %D%/packages/patches/ldc-disable-tests.patch			\
   %D%/packages/patches/lftp-dont-save-unknown-host-fingerprint.patch \
@@ -603,7 +612,6 @@ dist_patch_DATA =						\
   %D%/packages/patches/libdrm-symbol-check.patch		\
   %D%/packages/patches/libevent-dns-tests.patch			\
   %D%/packages/patches/libextractor-ffmpeg-3.patch		\
-  %D%/packages/patches/libmtp-devices.patch			\
   %D%/packages/patches/liboop-mips64-deplibs-fix.patch		\
   %D%/packages/patches/libotr-test-auth-fix.patch		\
   %D%/packages/patches/liblxqt-include.patch			\
@@ -659,6 +667,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/mumps-build-parallelism.patch		\
   %D%/packages/patches/mupen64plus-ui-console-notice.patch	\
   %D%/packages/patches/mutt-store-references.patch		\
+  %D%/packages/patches/mysql-fix-failing-test.patch		\
   %D%/packages/patches/nasm-no-ps-pdf.patch			\
   %D%/packages/patches/net-tools-bitrot.patch			\
   %D%/packages/patches/netcdf-config-date.patch			\
@@ -673,10 +682,8 @@ dist_patch_DATA =						\
   %D%/packages/patches/ocaml-CVE-2015-8869.patch		\
   %D%/packages/patches/ocaml-findlib-make-install.patch	\
   %D%/packages/patches/openexr-missing-samples.patch		\
-  %D%/packages/patches/openimageio-boost-1.60.patch		\
   %D%/packages/patches/openjpeg-CVE-2015-6581.patch		\
   %D%/packages/patches/openjpeg-use-after-free-fix.patch	\
-  %D%/packages/patches/openssh-CVE-2015-8325.patch		\
   %D%/packages/patches/openssl-runpath.patch			\
   %D%/packages/patches/openssl-c-rehash-in.patch		\
   %D%/packages/patches/openssl-CVE-2016-2177.patch		\
@@ -716,6 +723,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/portmidi-modular-build.patch		\
   %D%/packages/patches/procmail-ambiguous-getline-debian.patch  \
   %D%/packages/patches/procmail-CVE-2014-3618.patch		\
+  %D%/packages/patches/procps-non-linux.patch			\
   %D%/packages/patches/pt-scotch-build-parallelism.patch	\
   %D%/packages/patches/pulseaudio-fix-mult-test.patch		\
   %D%/packages/patches/pulseaudio-longer-test-timeout.patch	\
@@ -729,6 +737,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/python-2.7-source-date-epoch.patch	\
   %D%/packages/patches/python-3-deterministic-build-info.patch	\
   %D%/packages/patches/python-3-search-paths.patch		\
+  %D%/packages/patches/python-dendropy-exclude-failing-tests.patch \
   %D%/packages/patches/python-disable-ssl-test.patch		\
   %D%/packages/patches/python-fix-tests.patch			\
   %D%/packages/patches/python-ipython-inputhook-ctype.patch	\
@@ -739,6 +748,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/python-paste-remove-timing-test.patch	\
   %D%/packages/patches/python2-pygobject-2-gi-info-type-error-domain.patch \
   %D%/packages/patches/qt4-ldflags.patch			\
+  %D%/packages/patches/rapicorn-isnan.patch			\
   %D%/packages/patches/ratpoison-shell.patch			\
   %D%/packages/patches/readline-link-ncurses.patch		\
   %D%/packages/patches/ripperx-missing-file.patch		\
@@ -760,7 +770,6 @@ dist_patch_DATA =						\
   %D%/packages/patches/slim-sigusr1.patch			\
   %D%/packages/patches/slurm-configure-remove-nonfree-contribs.patch \
   %D%/packages/patches/soprano-find-clucene.patch		\
-  %D%/packages/patches/sudo-CVE-2015-5602.patch			\
   %D%/packages/patches/superlu-dist-scotchmetis.patch		\
   %D%/packages/patches/synfig-build-fix.patch			\
   %D%/packages/patches/t1lib-CVE-2010-2642.patch		\
@@ -781,6 +790,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/tophat-build-with-later-seqan.patch	\
   %D%/packages/patches/torsocks-dns-test.patch			\
   %D%/packages/patches/totem-debug-format-fix.patch		\
+  %D%/packages/patches/tuxpaint-stamps-path.patch		\
   %D%/packages/patches/unzip-CVE-2014-8139.patch		\
   %D%/packages/patches/unzip-CVE-2014-8140.patch		\
   %D%/packages/patches/unzip-CVE-2014-8141.patch		\

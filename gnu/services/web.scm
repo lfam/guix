@@ -1,6 +1,7 @@
 ;;; GNU Guix --- Functional package management for GNU
 ;;; Copyright © 2015 David Thompson <davet@gnu.org>
-;;; Copyright © 2015 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2015, 2016 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2016 ng0 <ng0@we.make.ritual.n0.is>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -26,7 +27,10 @@
   #:use-module (guix records)
   #:use-module (guix gexp)
   #:use-module (ice-9 match)
-  #:export (nginx-service))
+  #:export (nginx-configuration
+            nginx-configuration?
+            nginx-service
+            nginx-service-type))
 
 ;;; Commentary:
 ;;;
@@ -114,7 +118,7 @@
                          (default-nginx-config log-directory run-directory)))
   "Return a service that runs NGINX, the nginx web server.
 
-The nginx daemon loads its runtime configuration from CONFIG-FIGLE, stores log
+The nginx daemon loads its runtime configuration from CONFIG-FILE, stores log
 files in LOG-DIRECTORY, and stores temporary runtime files in RUN-DIRECTORY."
   (service nginx-service-type
            (nginx-configuration

@@ -1,7 +1,7 @@
 ;;; GNU Guix --- Functional package management for GNU
 ;;; Copyright © 2013, 2015, 2016 Andreas Enge <andreas@enge.fr>
 ;;; Copyright © 2014 Mark H Weaver <mhw@netris.org>
-;;; Copyright © 2014, 2015 Ricardo Wurmus <rekado@elephly.net>
+;;; Copyright © 2014, 2015, 2016 Ricardo Wurmus <rekado@elephly.net>
 ;;; Copyright © 2015 Paul van der Walt <paul@denknerd.org>
 ;;; Copyright © 2016 Roel Janssen <roel@gnu.org>
 ;;;
@@ -28,6 +28,7 @@
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system python)
   #:use-module (gnu packages)
+  #:use-module (gnu packages autotools)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages ghostscript)
@@ -156,6 +157,45 @@
      "This package provides Python bindings for the Qt4 interface of the
 Poppler PDF rendering library.")
     (license license:lgpl2.1+)))
+
+(define-public libharu
+  (package
+   (name "libharu")
+   (version "2.3.0")
+   (source (origin
+             (method url-fetch)
+             (uri (string-append "https://github.com/libharu/libharu/archive/"
+                                 "RELEASE_"
+                                 (string-join (string-split version #\.) "_")
+                                 ".tar.gz"))
+             (file-name (string-append name "-" version ".tar.gz"))
+             (sha256
+              (base32
+               "1lm4v539y9cb1lvbq387j57sy7yxda3yv8b1pk8m6zazbp66i7lg"))))
+   (build-system gnu-build-system)
+   (arguments
+    `(#:configure-flags
+      (list (string-append "--with-zlib="
+                           (assoc-ref %build-inputs "zlib"))
+            (string-append "--with-png="
+                           (assoc-ref %build-inputs "libpng")))
+      #:phases
+      (modify-phases %standard-phases
+        (add-before 'configure 'autogen
+          (lambda _ (zero? (system* "autoreconf" "-vif")))))))
+   (inputs
+    `(("zlib" ,zlib)
+      ("libpng" ,libpng)))
+   (native-inputs
+    `(("autoconf" ,autoconf)
+      ("automake" ,automake)
+      ("libtool" ,libtool)))
+   (home-page "http://libharu.org/")
+   (synopsis "Library for generating PDF files")
+   (description
+    "libHaru is a library for generating PDF files.  libHaru does not support
+reading and editing of existing PDF files.")
+   (license license:zlib)))
 
 (define-public xpdf
   (package
@@ -378,8 +418,8 @@ interaction.")
     (version "0.9.3")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/podofo/podofo-"
-                                  version ".tar.gz"))
+              (uri (string-append "mirror://sourceforge/podofo/podofo/" version
+                                  "/podofo-" version ".tar.gz"))
               (sha256
                (base32
                 "1n12lbq9x15vqn7dc0hsccp56l5jdff1xrhvlfqlbklxx0qiw9pc"))))
@@ -469,8 +509,8 @@ and examining the file structure (pdfshow).")
    (version "5.1.3")
    (source (origin
             (method url-fetch)
-            (uri (string-append "mirror://sourceforge/qpdf/qpdf-"
-                                version ".tar.gz"))
+            (uri (string-append "mirror://sourceforge/qpdf/qpdf/" version
+                                "/qpdf-" version ".tar.gz"))
             (sha256 (base32
                      "1lq1v7xghvl6p4hgrwbps3a13ad6lh4ib3myimb83hxgsgd4n5nm"))
             (modules '((guix build utils)))
@@ -521,8 +561,8 @@ program capable of converting PDF into other formats.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "mirror://sourceforge/xournal/xournal-"
-                           version ".tar.gz"))
+       (uri (string-append "mirror://sourceforge/xournal/xournal/" version
+                           "/xournal-" version ".tar.gz"))
        (sha256
         (base32
          "0c7gjcqhygiyp0ypaipdaxgkbivg6q45vhsj8v5jsi9nh6iqff13"))))

@@ -26,17 +26,17 @@
   #:use-module (gnu packages guile)
   #:use-module (gnu packages boost)
   #:use-module (gnu packages python)
-  #:use-module (gnu packages perl)
-  #:export (swig))
+  #:use-module (gnu packages perl))
 
-(define swig
+(define-public swig
   (package
     (name "swig")
     (version "3.0.5")
     (source (origin
              (method url-fetch)
-             (uri (string-append "mirror://sourceforge/swig/swig-"
-                                 version ".tar.gz"))
+             (uri (string-append "mirror://sourceforge/" name "/" name "/"
+                                 name "-" version "/"
+                                 name "-" version ".tar.gz"))
              (sha256
               (base32
                "0g1a69vrqxgsnr1wkx851ljn73a2x3jqzxa66s2l3w0kyblbjk4z"))))
@@ -47,7 +47,7 @@
               ("guile" ,guile-2.0)
               ("perl" ,perl)))
               ;; FIXME: reactivate input python as soon as the test failures
-              ;;   fatal error: Python.h: No such file or directory 
+              ;;   fatal error: Python.h: No such file or directory
               ;;   # include <Python.h>
               ;; are fixed.
               ;; The python part probably never worked and does not seem to

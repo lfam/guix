@@ -6,7 +6,8 @@
 ;;; Copyright © 2015 Sou Bunnbu <iyzsong@gmail.com>
 ;;; Copyright © 2015 Eric Dvorsak <eric@dvorsak.fr>
 ;;; Copyright © 2015 Ricardo Wurmus <rekado@elephly.net>
-;;; Copyright © 2016 Nils Gillmann <niasterisk@grrlz.net>
+;;; Copyright © 2015, 2016 Leo Famulari <leo@famulari.name>
+;;; Copyright © 2016 ng0 <ng0@we.make.ritual.n0.is>
 ;;; Copyright © 2016 Jookia <166291@gmail.com>
 ;;; Copyright © 2016 Eric Bavier <bavier@member.fsf.org>
 ;;; Copyright © 2016 Dmitry Nikolaev <cameltheman@gmail.com>
@@ -128,7 +129,7 @@ TrueType (TTF) files.")
     (version "2.35")
     (source (origin
              (method url-fetch)
-             (uri (string-append "mirror://sourceforge/dejavu/"
+             (uri (string-append "mirror://sourceforge/dejavu/dejavu/"
                                  version "/dejavu-fonts-ttf-"
                                  version ".tar.bz2"))
              (sha256
@@ -385,7 +386,7 @@ The Liberation Fonts are sponsored by Red Hat.")
       (origin
         (method url-fetch)
         (uri (string-append
-               "mirror://sourceforge/project/terminus-font/terminus-font-"
+               "mirror://sourceforge/terminus-font/terminus-font-"
                version
                "/terminus-font-"
                version
@@ -475,7 +476,8 @@ text in Simplified Chinese, Traditional Chinese, Japanese, and Korean.")
     (source (origin
               (method url-fetch)
               (uri (string-append
-                    "mirror://sourceforge/wqy/wqy-zenhei-"
+                    "mirror://sourceforge/wqy/wqy-zenhei/" version
+                    "%20%28Fighting-state%20RC1%29/wqy-zenhei-"
                     version ".tar.gz"))
               (file-name (string-append "wqy-zenhei-" version ".tar.gz"))
               (sha256
@@ -599,15 +601,15 @@ languages, plus Greek and Cyrillic.")
 (define-public font-gnu-unifont
   (package
     (name "font-gnu-unifont")
-    (version "8.0.01")
+    (version "9.0.01")
     (source (origin
               (method url-fetch)
               (uri (string-append
-                    "mirror://gnu/unifont/unifont-8.0.01/unifont-"
+                    "mirror://gnu/unifont/unifont-" version "/unifont-"
                     version ".tar.gz"))
               (sha256
                (base32
-                "176bzc2y3i49xavrmbyyz5lkqp0qq3bkj7rjrl197kib873by82b"))))
+                "14z4lx6asa94i73m19lsdgzqjn9xzi8320h3dafvzq9ima94pm9b"))))
     (build-system gnu-build-system)
     (outputs '("out" ; TrueType version
                "pcf" ; PCF (bitmap) version

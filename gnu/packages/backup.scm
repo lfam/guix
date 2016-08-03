@@ -106,8 +106,7 @@ spying and/or modification by the server.")
     (source
      (origin
       (method url-fetch)
-      ;; Source tarballs are not versioned
-      (uri "http://archive.miek.nl/projects/hdup2/hdup.tar.bz2")
+      (uri "https://fossies.org/linux/privat/old/hdup-2.0.14.tar.bz2")
       (sha256
        (base32
         "02bnczg01cyhajmm4rhbnc0ja0dd9ikv9fwv28asxh1rlx9yr0b7"))))
@@ -407,17 +406,14 @@ detection, and lossless compression.")
 (define-public borg
   (package
     (name "borg")
-    (version "1.0.3")
+    (version "1.0.6")
     (source (origin
               (method url-fetch)
-              (uri (string-append
-                     "https://pypi.python.org/packages/"
-                     "c9/c6/1efc338724b054d4d264dfeadfcba11cefa6c3c50f474cec91b8f0c21d3a"
-                     "/borgbackup-" version ".tar.gz"))
+              (uri (pypi-uri "borgbackup" version))
 
               (sha256
                (base32
-                "0kzr0xa00yjfxx27aipli67qg5ffj52yrnqhpf3sdy6k5wzwaybs"))))
+                "1dxn9p4xm0zd32xzzd9hs4a542db34clykrrnnv3hrdnc394895p"))))
     (build-system python-build-system)
     (arguments
      `(#:phases

@@ -22,6 +22,8 @@
 ;;; Copyright © 2016 Hartmut Goebel <h.goebel@crazy-compilers.com>
 ;;; Copyright © 2016 Daniel Pimentel <d4n1@d4n1.org>
 ;;; Copyright © 2016 Sou Bunnbu <iyzsong@gmail.com>
+;;; Copyright © 2016 Troy Sankey <sankeytms@gmail.com>
+;;; Copyright © 2016 ng0 <ng0@we.make.ritual.n0.is>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -194,6 +196,13 @@
            (lambda _
              ;; 'Lib/test/test_site.py' needs a valid $HOME
              (setenv "HOME" (getcwd))
+             ,@(if (string-prefix? "mips64el" (%current-system))
+
+                   ;; XXX: The following test fails on mips64el.
+                   '((false-if-exception
+                      (delete-file "Lib/test/test_ctypes.py")))
+
+                   '())
              #t))
           (add-after
            'unpack 'set-source-file-times-to-1980
@@ -384,18 +393,18 @@ instead of @command{python3}.")))
 (define-public python-psutil
   (package
     (name "python-psutil")
-    (version "3.3.0")
+    (version "4.3.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "psutil" version))
        (sha256
         (base32
-         "11bd1555vf2ibjnmqf64im5cp55vcqfq45ccinm9ll3bs68na6s2"))))
+         "1w4r09fvn6kd80m5mx4ws1wz100brkaq6hzzpwrns8cgjzjpl6c6"))))
     (build-system python-build-system)
     (native-inputs
      `(("python-setuptools" ,python-setuptools)))
-    (home-page "https://pypi.python.org/pypi/psutil/")
+    (home-page "https://www.github.com/giampaolo/psutil")
     (synopsis "Library for retrieving information on running processes")
     (description
      "psutil (Python system and process utilities) is a library for retrieving
@@ -1139,15 +1148,14 @@ after Andy Lester’s Perl module WWW::Mechanize.")
 (define-public python-simplejson
   (package
     (name "python-simplejson")
-    (version "3.3.0")
+    (version "3.8.2")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "https://pypi.python.org/packages/source/s/simplejson/simplejson-"
-                          version ".tar.gz"))
+      (uri (pypi-uri "simplejson" version))
       (sha256
        (base32
-        "07wsry5j44l5zzm74l4j2bvasiq8n5m32f31n2p7c68i5vc6p2ks"))))
+        "0zylrnax8b6r0ndgni4w9c599fi6wm9vx5g6k3ddqfj3932kk16m"))))
     (build-system python-build-system)
     (home-page "http://simplejson.readthedocs.org/en/latest/")
     (synopsis
@@ -1393,8 +1401,8 @@ syntax.")
     (version "2.3.4")
     (source (origin
              (method url-fetch)
-             (uri (string-append "mirror://sourceforge/scons/scons-"
-                                 version ".tar.gz"))
+             (uri (string-append "mirror://sourceforge/scons/scons/" version
+                                 "/scons-" version ".tar.gz"))
              (sha256
               (base32
                "0hdlci43wjz8maryj83mz04ir6rwcdrrzpd7cpzvdlzycqhdfmsb"))))
@@ -2030,14 +2038,14 @@ have failed since the last commit or what tests are currently failing.")
 (define-public python-coverage
   (package
     (name "python-coverage")
-    (version "4.0.3")
+    (version "4.1")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "coverage" version))
        (sha256
         (base32
-         "0qjlja8ny4gcfp8abqfwdrvr8qw9kr69lkja0b4cqqbsdmdjgcc5"))))
+         "01rbr4br4lsk0lwn8fb96zwd2xr4f0mg1w7iq3j11i8f5ig2nqs1"))))
     (build-system python-build-system)
     (inputs
      `(("python-setuptools" ,python-setuptools)))
@@ -2083,14 +2091,13 @@ backported from Python 2.7 for Python 2.4+.")
 (define-public behave
   (package
     (name "behave")
-    (version "1.2.4")
+    (version "1.2.5")
     (source (origin
              (method url-fetch)
-             (uri (string-append "https://pypi.python.org/packages/source/b/"
-                                 name "/" name "-" version ".tar.gz"))
+             (uri (pypi-uri "behave" version ".tar.bz2"))
              (sha256
               (base32
-               "1v2rfy8xnf0rk7cj4cgr7lam4015d458i7bg0xqs9czfv6njlm14"))))
+               "1iypp6z46r19n4xmgx6m1lwmlpfjh8vapq8izigrqlaarvp2y64c"))))
     (build-system python-build-system)
     (inputs
      `(("python-setuptools" ,python-setuptools)
@@ -3039,7 +3046,7 @@ writing C extensions for Python as easy as Python itself.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "mirror://sourceforge/numpy"
+       (uri (string-append "mirror://sourceforge/numpy/NumPy/" version
                            "/numpy-" version ".tar.gz"))
        (sha256
         (base32
@@ -3202,7 +3209,8 @@ association studies (GWAS) on extremely large data sets.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "mirror://sourceforge/pyparsing"
+       (uri (string-append "mirror://sourceforge/pyparsing/pyparsing"
+                           "/pyparsing-" version
                            "/pyparsing-" version ".tar.gz"))
        (sha256
         (base32
@@ -3283,15 +3291,14 @@ that client code uses to construct the grammar directly in Python code.")
 (define-public python-numexpr
   (package
     (name "python-numexpr")
-    (version "2.4.4")
+    (version "2.6.0")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "https://pypi.python.org/packages/source/"
-                           "n/numexpr/numexpr-" version ".tar.gz"))
+       (uri (pypi-uri "numexpr" version))
        (sha256
         (base32
-         "0nsnff5312fm38w6dm34bw7ghfqqy8vl9gig0al963h4mz8zm8nz"))))
+         "0i6iagl2hhbr8q4qzbbjd859v5806vqylq87fq7pi914ps6d6cag"))))
     (build-system python-build-system)
     (arguments `(#:tests? #f))          ; no tests included
     (propagated-inputs
@@ -3324,7 +3331,8 @@ transcendental functions).")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "mirror://sourceforge/matplotlib"
+       (uri (string-append "mirror://sourceforge/matplotlib/matplotlib"
+                           "/matplotlib-" version
                            "/matplotlib-" version ".tar.gz"))
        (sha256
         (base32
@@ -3534,7 +3542,8 @@ functions.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "mirror://sourceforge/scipy"
+; http://downloads.sourceforge.net/project/scipy/scipy/0.16.1/scipy-0.16.1.tar.gz
+       (uri (string-append "mirror://sourceforge/scipy/scipy/" version
                            "/scipy-" version ".tar.xz"))
        (sha256
         (base32
@@ -3663,14 +3672,14 @@ simple and Pythonic domain language.")
 (define-public python-alembic
   (package
     (name "python-alembic")
-    (version "0.8.4")
+    (version "0.8.7")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "alembic" version))
        (sha256
         (base32
-         "0jk23a852l3ybv7gfz81xzslyrnqnpjds5x15zd234y9rh9gq1w5"))))
+         "0ias6fdzwr2s220fnjspkdgm9510bd0cnap0hx5y4zy4srba9f3z"))))
     (build-system python-build-system)
     (native-inputs
      `(("python-mock" ,python-mock)
@@ -4132,13 +4141,13 @@ child application and control it as if a human were typing commands.")
 (define-public python-setuptools-scm
   (package
     (name "python-setuptools-scm")
-    (version "1.9.0")
+    (version "1.11.1")
     (source (origin
               (method url-fetch)
               (uri (pypi-uri "setuptools_scm" version))
               (sha256
                (base32
-                "0y24bl893zk6nrklbvdrlmpkalf214zjn6k1xrglljd29rrn4wxi"))))
+                "1gqr73i150yzj3mz32854vj93x07yr52kn8fdckwa41ll8wgficc"))))
     (build-system python-build-system)
     (native-inputs `(("python-setuptools" ,python-setuptools)))
     (home-page "https://github.com/pypa/setuptools_scm/")
@@ -4507,6 +4516,30 @@ features useful for text console applications.")
 (define-public python2-urwid
   (package-with-python2 python-urwid))
 
+(define-public python-urwidtrees
+  (package
+    (name "python-urwidtrees")
+    (version "1.0.1.1")
+    (source
+      (origin
+        (method url-fetch)
+        (uri (pypi-uri "urwidtrees" version))
+        (sha256
+          (base32
+            "1zcvy12s7h3fazf33d6y7b4v19p8hg95xqwhqlmw6jz9fq76v9h8"))))
+    (build-system python-build-system)
+    (arguments
+     '(#:tests? #f)) ; no tests
+    (inputs `(("python-urwid" ,python-urwid)))
+    (home-page "https://github.com/pazz/urwidtrees")
+    (synopsis "Tree widgets for urwid")
+    (description "Urwidtrees is a Widget Container API for the @code{urwid}
+toolkit.  Use it to build trees of widgets.")
+    (license gpl3+)))
+
+(define-public python2-urwidtrees
+  (package-with-python2 python-urwidtrees))
+
 (define-public python-dbus
   (package
     (name "python-dbus")
@@ -4591,14 +4624,14 @@ translate the complete SQLite API into Python.")
 (define-public python-lxml
   (package
     (name "python-lxml")
-    (version "3.5.0")
+    (version "3.6.0")
     (source
       (origin
         (method url-fetch)
         (uri (pypi-uri "lxml" version))
         (sha256
-          (base32
-            "0y7m2s8ci6q642zl85y5axkj8z827l0vhjl532acb75hlkir77rl"))))
+         (base32
+          "1pvbmiy2m7jwv493kilbghhj2pkh8wy1na3ji350vhzhlwlclx4w"))))
     (build-system python-build-system)
     (inputs
       `(("libxml2" ,libxml2)
@@ -4620,14 +4653,14 @@ libxml2 and libxslt.")
 (define-public python-beautifulsoup4
   (package
     (name "python-beautifulsoup4")
-    (version "4.4.1")
+    (version "4.5.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "beautifulsoup4" version))
        (sha256
         (base32
-         "1d36lc4pfkvl74fmzdib2nqnvknm0jddgf2n9yd7im150qyh3m47"))))
+         "1rf94360s8pmn37vxqjl0g74krq2p6nj3wbn6pj94ik6ny44q24f"))))
     (build-system python-build-system)
     (home-page
      "http://www.crummy.com/software/BeautifulSoup/bs4/")
@@ -4651,17 +4684,14 @@ converts incoming documents to Unicode and outgoing documents to UTF-8.")
 (define-public python2-cssutils
   (package
     (name "python2-cssutils")
-    (version "1.0")
+    (version "1.0.1")
     (source
       (origin
         (method url-fetch)
-        (uri (string-append
-              "https://pypi.python.org/packages/source/c/cssutils/cssutils-"
-              version
-              ".zip"))
+        (uri (pypi-uri "cssutils" version))
         (sha256
-          (base32
-            "1bwim1353r4hqiir73sn4sc43y7ymh09qx0kly7vj048blppc125"))))
+         (base32
+          "0qwha9x1wml2qmipbcz03gndnlwhzrjdvw9i09si247a90l8p8fq"))))
     (build-system python-build-system)
     (native-inputs
       `(("python2-mock" ,python2-mock) ; for the tests
@@ -4684,17 +4714,14 @@ options.")
 (define-public python-cssselect
   (package
     (name "python-cssselect")
-    (version "0.9.1")
+    (version "0.9.2")
     (source
       (origin
         (method url-fetch)
-        (uri (string-append
-              "https://pypi.python.org/packages/source/c/cssselect/cssselect-"
-              version
-              ".tar.gz"))
+        (uri (pypi-uri "cssselect" version))
         (sha256
-          (base32
-            "10h623qnp6dp1191jri7lvgmnd4yfkl36k9smqklp1qlf3iafd85"))))
+         (base32
+          "1xg6gbva1yswghiycmgincv6ab4bn7hpm720ndbj40h8xycmnfvi"))))
     (build-system python-build-system)
     (inputs
       `(("python-setuptools" ,python-setuptools)))
@@ -4895,7 +4922,8 @@ as possible in order to be comprehensible and easily extensible.")
     (version "0.14")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/python-xlib/"
+              (uri (string-append "mirror://sourceforge/python-xlib/python-xlib"
+                                  "/" version "/"
                                   "python-xlib-" version ".tar.gz"))
               (sha256
                (base32
@@ -4995,7 +5023,7 @@ connection to each user.")
     (inputs
      `(("python-setuptools" ,python-setuptools)))
     (home-page "https://github.com/cython/backports_abc")
-    (synopsis "Backport of additions to the 'collections.abc' module.")
+    (synopsis "Backport of additions to the 'collections.abc' module")
     (description
      "Python-backports-abc provides a backport of additions to the
 'collections.abc' module in Python-3.5.")
@@ -5007,14 +5035,14 @@ connection to each user.")
 (define-public python-waf
   (package
     (name "python-waf")
-    (version "1.8.8")
+    (version "1.9.1")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://waf.io/"
                                   "waf-" version ".tar.bz2"))
               (sha256
                (base32
-                "0b5q307fgn6a5d8yjia2d1l4bk1q3ilvc0w8k4isfrrx2gbcw8wn"))))
+                "1nc4qaqx2vsanlpp9mcwvf91xjqpkvcc6fcxd5sb4fwvaxamw5v6"))))
     (build-system python-build-system)
     (arguments
      '(#:phases
@@ -5606,17 +5634,14 @@ and MAC network addresses.")
 (define-public python-iso8601
   (package
   (name "python-iso8601")
-  (version "0.1.10")
+  (version "0.1.11")
   (source
     (origin
       (method url-fetch)
-      (uri (string-append
-             "https://pypi.python.org/packages/source/i/iso8601/iso8601-"
-             version
-             ".tar.gz"))
+      (uri (pypi-uri "iso8601" version))
       (sha256
-        (base32
-          "1qf01afxh7j4gja71vxv345if8avg6nnm0ry0zsk6j3030xgy4p7"))))
+       (base32
+        "0c7gh3lsdjds262h0v1sqc66l7hqgfwbakn96qrhdbl0i3vm5yz8"))))
   (build-system python-build-system)
   (inputs
     `(("python-setuptools" ,python-setuptools)))
@@ -5961,23 +5986,19 @@ responses, rather than doing any computation.")
 (define-public python-cryptography-vectors
   (package
     (name "python-cryptography-vectors")
-    (version "1.3.2")
+    (version "1.3.4")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-              "https://pypi.python.org/packages/"
-              "3f/fd/"
-              "5883a7fdfcdf6edec55c58605be99d8c36ce97a9b729763ea9cf30e761b7"
-              "/cryptography_vectors-" version ".tar.gz"))
+       (uri (pypi-uri "cryptography_vectors" version))
        (sha256
         (base32
-         "0ss682bpgzdfy2vam8yhhrx7p5gnw89ydlvaswqp52za8sd8nsh0"))))
+         "15h1iz2klnpb4f8djxy7cpbnyn3wbjp7bnj4pz6s7w6plghbq524"))))
     (build-system python-build-system)
     (native-inputs
      `(("python-setuptools" ,python-setuptools)))
     (home-page "https://github.com/pyca/cryptography")
-    (synopsis "Test vectors for the cryptography package.")
+    (synopsis "Test vectors for the cryptography package")
     (description
       "This package contains test vectors for the cryptography package.")
     ;; Distributed under either BSD-3 or ASL2.0
@@ -5989,18 +6010,14 @@ responses, rather than doing any computation.")
 (define-public python-cryptography
   (package
     (name "python-cryptography")
-    (version "1.3.2")
+    (version "1.3.4")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-              "https://pypi.python.org/packages/"
-              "04/da/"
-              "35f9a1d34dab5d777f65fb87731288f338ab0ae46a525ffdf0405b573dd0"
-              "/cryptography-" version ".tar.gz"))
+       (uri (pypi-uri "cryptography" version))
        (sha256
         (base32
-         "121067qdbzd0ir0nxjdf0kgai7qlsc9yh2xhrj4cavcn4y4gmapv"))))
+         "1a85l548w5vvq3yhz0az7ajg2ijixzp6gagapw6wgrqvq28ghgs2"))))
     (build-system python-build-system)
     (inputs
      `(("openssl" ,openssl)))
@@ -6666,16 +6683,14 @@ facilities for defining, registering and looking up components.")
 (define-public python2-pythondialog
   (package
     (name "python2-pythondialog")
-    (version "3.3.0")
+    (version "3.4.0")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "https://pypi.python.org/packages/source/p/"
-                           "python2-pythondialog/python2-pythondialog-"
-                           version ".tar.gz"))
+       (uri (pypi-uri "python2-pythondialog" version))
        (sha256
         (base32
-         "1yhkagsh99bfi592ymczf8rnw8rk6n9hdqy3dd98m3yrx8zmjvry"))))
+         "0d8k7lxk50imdyx85lv8j98i4c93a71iwpapnl1506rpkbm9qvd9"))))
     (build-system python-build-system)
     (arguments
      `(#:phases
@@ -6896,16 +6911,14 @@ tables.")
 (define-public python-websocket-client
   (package
     (name "python-websocket-client")
-    (version "0.34.0")
+    (version "0.37.0")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "https://pypi.python.org/packages/source/w"
-                           "/websocket-client/websocket_client-"
-                           version ".tar.gz"))
+       (uri (pypi-uri "websocket_client" version))
        (sha256
         (base32
-         "1prdx6d49f1cff17kzj15bnz09palfdgc1m5dkq9jd4mr90n4ak8"))))
+         "0h9glp1jll3z76ly3kg08aqgxqk0a68p4zi9yn50353bh5nj92v7"))))
     (build-system python-build-system)
     (native-inputs
      `(("python-six" ,python-six))) ; for tests
@@ -6923,13 +6936,13 @@ WebSocket usage in Python programs.")
 (define-public python-atomicwrites
   (package
     (name "python-atomicwrites")
-    (version "1.0.0")
+    (version "1.1.0")
     (source (origin
              (method url-fetch)
              (uri (pypi-uri "atomicwrites" version))
              (sha256
               (base32
-               "019fa4771q7fb1167yfbh6msdzcqini6v7i59rmf72mzdjd7x5qv"))))
+               "1s01dci8arsl9d9vr5nz1fk9znldp1z3l4yl43f0c27z12b8yxl0"))))
     (build-system python-build-system)
     (synopsis "Atomic file writes in Python")
     (description "Library for atomic file writes using platform dependent tools
@@ -7094,7 +7107,17 @@ minimal and fast API targetting the following uses:
     (description "The pytest-cache plugin provides tools to rerun failures from
 the last py.test invocation.")
     (home-page "https://bitbucket.org/hpk42/pytest-cache/")
-    (license license:expat)))
+    (license license:expat)
+    (properties `((python2-variant . ,(delay python2-pytest-cache))))))
+
+(define-public python2-pytest-cache
+  (let ((pytest-cache (package-with-python2
+                        (strip-python2-variant python-pytest-cache))))
+    (package
+      (inherit pytest-cache)
+      (native-inputs
+       `(("python2-setuptools" ,python2-setuptools)
+         ,@(package-native-inputs pytest-cache))))))
 
 (define-public python-pytest-localserver
   (package
@@ -7975,14 +7998,14 @@ layouts.")
 (define-public python-pyquery
   (package
     (name "python-pyquery")
-    (version "1.2.11")
+    (version "1.2.13")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "pyquery" version))
        (sha256
         (base32
-         "1ikz1387nsp0pp7mzzr6ip9n5gr67acpap24yn33987v7fkjp0sa"))))
+         "0j9fsisip21qv4xljsg5dmni1pgpvwrjyyhhql0glydc4bs5rjgv"))))
     (build-system python-build-system)
     (propagated-inputs
      `(("python-lxml" ,python-lxml)
@@ -8335,13 +8358,13 @@ commands into documents, helping you to keep your command examples up to date.")
 (define-public python-sphinx-repoze-autointerface
   (package
     (name "python-sphinx-repoze-autointerface")
-    (version "0.7.1")
+    (version "0.8")
     (source (origin
               (method url-fetch)
               (uri (pypi-uri "repoze.sphinx.autointerface" version))
               (sha256
                (base32
-                "016mv3wbylw278wl7z33y2liyra8ljp08zq1g0anzadh1an5zvwp"))))
+                "08ycivzf7bh4a1zcyp31hbyqs1b2c9r26raa3vxjwwmbfqr3iw4f"))))
     (build-system python-build-system)
     (propagated-inputs
      `(("python-docutils" ,python-docutils)
@@ -8723,7 +8746,7 @@ the same purpose: to provide Python bindings for libmagic.")
     (source
       (origin
         (method url-fetch)
-        (uri (string-append "mirror://sourceforge/s3tools/"
+        (uri (string-append "mirror://sourceforge/s3tools/s3cmd/" version "/"
                             "s3cmd-" version ".tar.gz"))
         (sha256
           (base32
@@ -9123,8 +9146,9 @@ to provide a high-level synchronous API on top of the libev event loop.")
                 "0ydxrp9myw1mvsz3qfzx5579y5llmqa82pxvqchgp5syczffi450"))))
     (build-system python-build-system)
     (native-inputs
-     `(("python-setuptools" ,python-setuptools)
-       ("python-zope-interface" ,python-zope-interface)))
+     `(("python-setuptools" ,python-setuptools)))
+    (propagated-inputs
+     `(("python-zope-interface" ,python-zope-interface)))
     (home-page "https://twistedmatrix.com/")
     (synopsis "Asynchronous networking framework written in Python")
     (description
@@ -9209,8 +9233,9 @@ data in Python.")
     (build-system python-build-system)
     (arguments '(#:tests? #f)) ; XXX: needs zookeeper
     (native-inputs
-     `(("python-setuptools" ,python-setuptools)
-       ("python-six" ,python-six)))
+     `(("python-setuptools" ,python-setuptools)))
+    (propagated-inputs
+     `(("python-six" ,python-six)))
     (home-page "https://kazoo.readthedocs.org")
     (synopsis "High-level Zookeeper client library")
     (description
@@ -9238,9 +9263,10 @@ programming errors.")
     (build-system python-build-system)
     (arguments '(#:tests? #f)) ; XXX: needs zookeeper, kafka, etc.
     (native-inputs
+     `(("python-setuptools" ,python-setuptools)))
+    (propagated-inputs
      `(("python-gevent" ,python-gevent)
        ("python-kazoo" ,python-kazoo)
-       ("python-setuptools" ,python-setuptools)
        ("python-tabulate" ,python-tabulate)))
     (inputs
      `(("librdkafka" ,librdkafka)))
@@ -9271,13 +9297,14 @@ are optionally backed by a C extension built on librdkafka.")
           "02wjrpf001gjdjsaxxbzcwfg19crlk2dbddayrfc2v06f53yrcyw"))))
   (build-system python-build-system)
   (home-page "https://github.com/jquast/wcwidth")
-  (synopsis "Measure number of terminal column cells of wide-character codes.")
+  (synopsis "Measure number of terminal column cells of wide-character codes")
   (description "Wcwidth measures the number of terminal column cells of
 wide-character codes.  It is useful for those implementing a terminal emulator,
 or programs that carefully produce output to be interpreted by one.  It is a
 Python implementation of the @code{wcwidth} and @code{wcswidth} C functions
 specified in POSIX.1-2001 and POSIX.1-2008.")
-  (license license:expat)))
+  (license license:expat)
+  (properties `((python2-variant . ,(delay python2-wcwidth))))))
 
 (define-public python2-wcwidth
   (package
@@ -9348,10 +9375,11 @@ objects, patterned after the Mocha library for Ruby.")
     (build-system python-build-system)
     (native-inputs
      `(("python-setuptools" ,python-setuptools)
-       ("python-dateutil" ,python-dateutil-2)
        ;; For testing
        ("python-chai" ,python-chai)
        ("python-simplejson" ,python-simplejson)))
+    (propagated-inputs
+     `(("python-dateutil" ,python-dateutil-2)))
     (home-page "https://github.com/crsmithdev/arrow/")
     (synopsis "Dates and times for Python")
     (description
@@ -9422,12 +9450,13 @@ Wikipedia code samples at
                 "1k2dcl6mqpn5bljyl6w42rqyd9mb3y9kh2mg7m2x3kfjwvg0rpva"))))
     (build-system python-build-system)
     (native-inputs
-     `(("python-psutil" ,python-psutil)
-       ("python-pylev" ,python-pylev)
-       ("python-setuptools" ,python-setuptools)
+     `(("python-setuptools" ,python-setuptools)
        ;; For testing
        ("python-mock" ,python-mock)
        ("python-pytest" ,python-pytest)))
+    (propagated-inputs
+     `(("python-psutil" ,python-psutil)
+       ("python-pylev" ,python-pylev)))
     (home-page "https://github.com/sdispater/cleo")
     (synopsis "Command-line arguments library for Python")
     (description
@@ -9507,9 +9536,10 @@ It supports TSIG authenticated messages and EDNS0.")
                (("dnspython3") "dnspython"))
              #t)))))
     (native-inputs
+     `(("python-setuptools" ,python-setuptools)))
+    (propagated-inputs
      `(("python-dnspython" ,python-dnspython)
-       ("python-idna" ,python-idna)
-       ("python-setuptools" ,python-setuptools)))
+       ("python-idna" ,python-idna)))
     (home-page "https://github.com/JoshData/python-email-validator")
     (synopsis "Email address validation library for Python")
     (description
@@ -9564,13 +9594,14 @@ parsing UK postcodes.")
            (delete-file "faker/tests/ne_np/__init__.py")
            #t)))))
   (native-inputs
-   `(("python-dateutil" ,python-dateutil-2)
-     ("python-setuptools" ,python-setuptools)
-     ("python-six" ,python-six)
+   `(("python-setuptools" ,python-setuptools)
      ;; For testing
      ("python-email-validator" ,python-email-validator)
      ("python-mock" ,python-mock)
      ("python-ukpostcodeparser" ,python-ukpostcodeparser)))
+  (propagated-inputs
+   `(("python-dateutil" ,python-dateutil-2)
+     ("python-six" ,python-six)))
   (home-page "http://github.com/joke2k/faker")
   (synopsis "Python package that generates fake data")
   (description
@@ -9584,9 +9615,9 @@ addresses, and phone numbers.")
                                      python-fake-factory))))
     (package
       (inherit base)
-      (native-inputs
+      (propagated-inputs
        `(("python2-ipaddress" ,python2-ipaddress)
-         ,@(package-native-inputs base))))))
+         ,@(package-propagated-inputs base))))))
 
 (define-public python-pyaml
   (package
@@ -9649,6 +9680,8 @@ mocks, stubs and fakes.")
     (build-system python-build-system)
     (arguments '(#:tests? #f)) ; no tests
     (native-inputs
+     `(("python-setuptools" ,python-setuptools)))
+    (propagated-inputs
      `(("python-arrow" ,python-arrow)
        ("python-blinker" ,python-blinker)
        ("python-cleo" ,python-cleo)
@@ -9656,7 +9689,6 @@ mocks, stubs and fakes.")
        ("python-inflection" ,python-inflection)
        ("python-lazy-object-proxy" ,python-lazy-object-proxy)
        ("python-pyaml" ,python-pyaml)
-       ("python-setuptools" ,python-setuptools)
        ("python-simplejson" ,python-simplejson)
        ("python-wrapt" ,python-wrapt)))
     (home-page "https://orator-orm.com/")
@@ -9671,6 +9703,104 @@ implementation for Python.")
   (let ((base (package-with-python2 (strip-python2-variant python-orator))))
     (package
       (inherit base)
-      (native-inputs
+      (propagated-inputs
        `(("python2-ipaddress" ,python2-ipaddress)
+         ,@(package-propagated-inputs base))))))
+
+(define-public python-prompt-toolkit
+ (package
+  (name "python-prompt-toolkit")
+  (version "1.0.3")
+  (source
+    (origin
+      (method url-fetch)
+      (uri (string-append
+             "https://pypi.python.org/packages/"
+             "8d/de/412f23919929c01e6b55183e124623f705e4b91796d3d2dce2cb53d595ad/"
+             "prompt_toolkit-" version ".tar.gz"))
+      (sha256
+        (base32
+          "18lbmmkyjf509klc3217lq0x863pfzix779zx5kp9lms1iph4pl0"))))
+  (build-system python-build-system)
+  (inputs `(("python-wcwidth" ,python-wcwidth)
+            ("python-pygments" ,python-pygments)))
+  (native-inputs `(("python-six" ,python-six)))
+  (home-page "https://github.com/jonathanslenders/python-prompt-toolkit")
+  (synopsis "Library for building command line interfaces in Python")
+  (description
+    "Prompt-Toolkit is a library for building interactive command line
+interfaces in Python.  It's like GNU Readline but it also features syntax
+highlighting while typing, out-of-the-box multi-line input editing, advanced
+code completion, incremental search, support for Chinese double-width
+characters, mouse support, and auto suggestions.")
+  (license bsd-3)
+  (properties `((python2-variant . ,(delay python2-prompt-toolkit))))))
+
+(define-public python2-prompt-toolkit
+  (let ((base (package-with-python2 (strip-python2-variant python-prompt-toolkit))))
+    (package
+      (inherit base)
+      (native-inputs
+       `(("python2-setuptools" ,python2-setuptools)
          ,@(package-native-inputs base))))))
+
+(define-public python-jedi
+  (package
+    (name "python-jedi")
+    (version "0.9.0")
+    (source
+      (origin
+        (method url-fetch)
+        (uri (pypi-uri "jedi" version))
+        (sha256
+          (base32
+            "0c8x962ynpx001fdvp07m2q5jk4igkxbj3rmnydavphvlgxijk1v"))))
+    (build-system python-build-system)
+    (home-page "https://github.com/davidhalter/jedi")
+    (synopsis
+      "Autocompletion for Python that can be used for text editors")
+    (description
+      "Jedi is an autocompletion tool for Python that can be used for text editors.")
+    (license license:expat)
+    (properties `((python2-variant . ,(delay python2-jedi))))))
+
+(define-public python2-jedi
+  (let ((base (package-with-python2 (strip-python2-variant python-jedi))))
+    (package
+      (inherit base)
+      (native-inputs
+       `(("python2-setuptools" ,python2-setuptools)
+         ,@(package-native-inputs base))))))
+
+(define-public ptpython
+  (package
+    (name "ptpython")
+    (version "0.34")
+    (source (origin
+              (method url-fetch)
+              (uri (pypi-uri "ptpython" version))
+              (sha256
+               (base32
+                "1mmbiyzf0n8hm7z2a562x7w5cbl6jc0zsk6vp40q1z4cyblv1k13"))))
+    (build-system python-build-system)
+    (inputs
+     `(("python-docopt" ,python-docopt)
+       ("python-jedi" ,python-jedi)
+       ("python-prompt-toolkit" ,python-prompt-toolkit)
+       ("python-pygments" ,python-pygments)
+       ("python-setuptools" ,python-setuptools)))
+    (home-page "https://github.com/jonathanslenders/ptpython")
+    (synopsis "Python Read-Eval-Print-Loop with nice IDE-like features")
+    (description
+     "ptpython is a Python read-eval-print loop with IDE-like features.
+It supports syntax highlighting, multiline editing, autocompletion, mouse,
+color schemes, bracketed paste, Vi and Emacs keybindings, Chinese characters
+etc.")
+    (license bsd-3)
+    (properties `((python2-variant . ,(delay ptpython-2))))))
+
+(define-public ptpython-2
+  (let ((base (package-with-python2 (strip-python2-variant ptpython))))
+    (package
+      (inherit base)
+      (name "ptpython2"))))

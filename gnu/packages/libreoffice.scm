@@ -94,14 +94,14 @@ their dependencies automatically upon calculation.")
 (define-public orcus
   (package
     (name "orcus")
-    (version "0.7.1")
+    (version "0.9.2")
     (source
      (origin
       (method url-fetch)
       (uri (string-append "http://kohei.us/files/" name "/src/lib"
                           name "-" version ".tar.xz"))
       (sha256 (base32
-               "0hva4qalg3dk6n1118ncr5fy8cqnj2f7fwldw7aa04124rj6p104"))))
+               "170racjz7s7yxza722hxsqc12788w57qnp6x6j2692pzp3qzjjfx"))))
     (build-system gnu-build-system)
     (native-inputs
      `(("pkg-config" ,pkg-config)))
@@ -127,7 +127,7 @@ CSV, CSS and XML.")
      (origin
       (method url-fetch)
       (uri (string-append "mirror://sourceforge/libwpd/" name "/" name "-"
-                          version ".tar.xz"))
+                          version "/" name "-" version ".tar.xz"))
       (sha256 (base32
                "03ygxyb0vfjv8raif5q62sl33b54wkr5rzgadb8slijm6k281wpn"))))
     (build-system gnu-build-system)
@@ -158,8 +158,8 @@ spreadsheets and presentations.")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "mirror://sourceforge/libwpd/" name "/" name "-"
-                          version ".tar.xz"))
+      (uri (string-append "mirror://sourceforge/" name "/" name "/"
+                          name "-" version "/" name "-" version ".tar.xz"))
       (sha256 (base32
                "0b6krzr6kxzm89g6bapn805kdayq70hn16n5b5wfs2lwrf0ag2wx"))))
     (build-system gnu-build-system)
@@ -220,8 +220,8 @@ ZVR (simple compressed text format).")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "mirror://sourceforge/libwpg/" name "/" name "-"
-                          version ".tar.xz"))
+      (uri (string-append "mirror://sourceforge/" name "/" name "/"
+                          name "-" version "/" name "-" version ".tar.xz"))
       (sha256 (base32
                "097jx8a638fwwfrzf6v29r1yhc34rq9526py7wf0ck2z4fcr2w3g"))))
     (build-system gnu-build-system)
@@ -576,8 +576,8 @@ text documents, vector drawings, presentations and spreadsheets.")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "mirror://sourceforge/" name "/" name "/"
-                          name "-" version ".tar.xz"))
+      (uri (string-append "mirror://sourceforge/" name "/" name "/" name "-"
+                          version "/" name "-" version ".tar.xz"))
       (sha256 (base32
                "1vx9h419fcfcs0yj071hsg9d2qvkacgca6052m8hv3h743cdmzil"))))
     (build-system gnu-build-system)
@@ -607,7 +607,7 @@ spreadsheet documents.")
      (origin
       (method url-fetch)
       (uri (string-append "mirror://sourceforge/" name "/" name "/"
-                          name "-" version ".tar.xz"))
+                          name "-" version "/" name "-" version ".tar.xz"))
       (sha256 (base32
                "0nlrdk7di015l0sk0ivjdqs86zdcvf73p9z9s9ry5glyhrknzxjk"))))
     (build-system gnu-build-system)
@@ -635,7 +635,7 @@ Works word processor file format.")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "mirror://sourceforge/" name "/"
+      (uri (string-append "mirror://sourceforge/" name "/Hunspell/" version "/"
                           name "-" version ".tar.gz"))
       (sha256 (base32
                "0v14ff9s37vkh45diaddndcrj0hmn67arh8xh8k79q9c1vgc1cm7"))))
@@ -655,7 +655,8 @@ word compounding or character encoding.")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "mirror://sourceforge/hunspell/"
+      (uri (string-append "mirror://sourceforge/hunspell/Hyphen/"
+                          (version-major+minor version) "/"
                           name "-" version ".tar.gz"))
       (sha256 (base32
                "01ap9pr6zzzbp4ky0vy7i1983fwyqy27pl0ld55s30fdxka3ciih"))))
@@ -676,7 +677,7 @@ patterns, which are pre-processed by a perl script.")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "mirror://sourceforge/hunspell/"
+      (uri (string-append "mirror://sourceforge/hunspell/MyThes/" version "/"
                           name "-" version ".tar.gz"))
       (sha256 (base32
                "0prh19wy1c74kmzkkavm9qslk99gz8h8wmjvwzjc6lf8v2az708y"))))
@@ -709,7 +710,7 @@ and to return information on pronunciations, meanings and synonyms.")
 (define-public libreoffice
   (package
     (name "libreoffice")
-    (version "5.0.5.2")
+    (version "5.1.4.2")
     (source
      (origin
       (method url-fetch)
@@ -718,7 +719,7 @@ and to return information on pronunciations, meanings and synonyms.")
           "http://download.documentfoundation.org/libreoffice/src/"
           (version-prefix version 3) "/libreoffice-" version ".tar.xz"))
       (sha256 (base32
-               "120vcxpxzs0za76fyfry281ysv6d1ianb37d1yq8py8chkdjkrqy"))))
+               "11c30y9gvsy5h3nh9pnciq57gi99plrmr6qp8hhdk2l5xmwlmrfa"))))
     (build-system gnu-build-system)
     (native-inputs
      `(;; autoreconf is run by the LibreOffice build system, since after
@@ -730,7 +731,7 @@ and to return information on pronunciations, meanings and synonyms.")
        ("cppunit" ,cppunit)
        ("flex" ,flex)
        ("pkg-config" ,pkg-config)
-       ("python" ,python)
+       ("python" ,python-wrapper)
        ("which" ,which)))
     (inputs
      `(("bluez" ,bluez)
@@ -851,6 +852,8 @@ and to return information on pronunciations, meanings and synonyms.")
           "--disable-coinmp"
           "--disable-firebird-sdbc" ; embedded firebird
           "--disable-gltf"
+          "--without-doxygen"
+          "--disable-gtk3"
           "--disable-liblangtag")))
     (home-page "https://www.libreoffice.org/")
     (synopsis "Office suite")

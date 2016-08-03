@@ -1,5 +1,6 @@
 ;;; GNU Guix --- Functional package management for GNU
 ;;; Copyright © 2015 Mathieu Lirzin <mthl@openmailbox.org>
+;;; Copyright © 2016 Efraim Flashner <efraim@flashner.co.il>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -35,7 +36,7 @@
     (version "1.2.4")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/project/pcmanfm/"
+              (uri (string-append "mirror://sourceforge/pcmanfm/"
                                   "PCManFM%20%2B%20Libfm%20%28tarball%20release"
                                   "%29/LibFM/" name "-" version ".tar.xz"))
               (sha256
@@ -71,14 +72,14 @@ libFM file management library.")))
 (define-public lxappearance
   (package
     (name "lxappearance")
-    (version "0.6.1")
+    (version "0.6.2")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/project/lxde/"
+              (uri (string-append "mirror://sourceforge/lxde/"
                                   "LXAppearance/" name "-" version ".tar.xz"))
               (sha256
                (base32
-                "1phnv1b2jdj2vlibjyc9z01izcf3k5zxj8glsaf0i3vh77zqmqq9"))))
+                "07r0xbi6504zjnbpan7zrn7gi4j0kbsqqfpj8v2x94gr05p16qj4"))))
     (build-system gnu-build-system)
     (inputs `(("gtk+" ,gtk+-2)))
     (native-inputs `(("intltool"   ,intltool)
@@ -92,16 +93,16 @@ able to change themes, icons, and fonts used by GTK+ applications.")
 (define-public lxrandr
   (package
     (name "lxrandr")
-    (version "0.3.0")
+    (version "0.3.1")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/project/lxde/LXRandR"
+              (uri (string-append "mirror://sourceforge/lxde/LXRandR"
                                   "%20%28monitor%20config%20tool%29/LXRandR%20"
                                   (version-major+minor version) ".x/"
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "0xkbqv66hisbxkvnf7y5kwqbhrq26f49wd7w6ylhnjlccpnylg8q"))))
+                "0khqi42paqg82jllb2kza4arf3fafzgq90fhyr3rw3d9hn23763d"))))
     (build-system gnu-build-system)
     (inputs `(("gtk+" ,gtk+-2)))
     (native-inputs `(("intltool"   ,intltool)
@@ -118,16 +119,16 @@ or external monitor.")
 (define-public lxtask
   (package
     (name "lxtask")
-    (version "0.1.6")
+    (version "0.1.7")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/project/lxde/LXTask"
+              (uri (string-append "mirror://sourceforge/lxde/LXTask"
                                   "%20%28task%20manager%29/LXTask%20"
                                   (version-major+minor version) ".x/"
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "0ia3i430lpwgl2kch6sl1za8qf96wc4fkcv91yhdzgnzafcnm3gp"))))
+                "1zihhvzsg9bl6k0gv7jwx6cgsi3rmcagvnmshc1h0mjq2immmdph"))))
     (build-system gnu-build-system)
     (inputs `(("gtk+" ,gtk+-2)))
     (native-inputs `(("intltool"   ,intltool)
@@ -145,7 +146,7 @@ toolkit.  It allows users to monitor and control of running processes.")
     (version "0.2.0")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/project/lxde/LXTerminal"
+              (uri (string-append "mirror://sourceforge/lxde/LXTerminal"
                                   "%20%28terminal%20emulator%29/LXTerminal%20"
                                   version "/" name "-" version ".tar.gz"))
               (sha256
@@ -167,15 +168,15 @@ performance, all instances of the terminal are sharing a single process.")
 (define-public menu-cache
   (package
     (name "menu-cache")
-    (version "1.0.0")
+    (version "1.0.1")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/project/lxde/" name "/"
+              (uri (string-append "mirror://sourceforge/lxde/" name "/"
                                   (version-major+minor version) "/"
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "1bws84fiwk3anp30hcr0lw1xw5cgp44x5ik2yv2ijcgxpcvz8zgz"))))
+                "0ngxvwfj9drabqi3lyzgpi0d0za6431sy2ijb010filrj54jdiqa"))))
     (build-system gnu-build-system)
     (inputs `(("glib"  ,glib)
               ("libfm" ,libfm-extra)))
@@ -192,7 +193,7 @@ speed up the access to freedesktop.org defined application menus.")
     (version "1.2.4")
     (source (origin
               (method url-fetch)
-              (uri (string-append "mirror://sourceforge/project/" name "/"
+              (uri (string-append "mirror://sourceforge/" name "/"
                                   "PCManFM%20%2B%20Libfm%20%28tarball%20release"
                                   "%29/PCManFM/" name "-" version ".tar.xz"))
               (sha256

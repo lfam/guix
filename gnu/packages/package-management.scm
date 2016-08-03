@@ -168,6 +168,7 @@
                           (sha256 hash)))))
        `(("bzip2" ,bzip2)
          ("gzip" ,gzip)
+         ("zlib" ,zlib)                           ;for 'guix publish'
 
          ("sqlite" ,sqlite)
          ("libgcrypt" ,libgcrypt)
@@ -192,7 +193,8 @@
     (propagated-inputs
      `(("gnutls" ,gnutls)                         ;for 'guix download' & co.
        ("guile-json" ,guile-json)
-       ("geiser" ,geiser)))                       ;for guix.el
+       ("geiser" ,geiser)                         ;for guix.el
+       ("emacs-magit-popup" ,emacs-magit-popup))) ;for "M-x guix" command
 
     (home-page "http://www.gnu.org/software/guix")
     (synopsis "Functional package manager for installed software packages and versions")
@@ -210,9 +212,9 @@ the Nix package manager.")
   ;;
   ;; Note: use a very short commit id; with a longer one, the limit on
   ;; hash-bang lines would be exceeded while running the tests.
-  (let ((commit "e9017c98d61f305b624bacaa30e8891ec0100980"))
+  (let ((commit "97c8aef15de89799ac01b62dd9b91245c23eefcb"))
     (package (inherit guix-0.10.0)
-      (version (string-append "0.10.0-0." (string-take commit 4)))
+      (version (string-append "0.10.0-1." (string-take commit 4)))
       (source (origin
                 (method git-fetch)
                 (uri (git-reference
@@ -222,7 +224,7 @@ the Nix package manager.")
                       (commit commit)))
                 (sha256
                  (base32
-                  "13mfk10cw6fk4diclzld56xwabshanxjcczdrjlj0wisaz32h3nl"))
+                  "0sdxq87mbvig7785gzf52ywmvl3p1q1qgsczmkzrlw988xkma1dr"))
                 (file-name (string-append "guix-" version "-checkout"))))
       (arguments
        (substitute-keyword-arguments (package-arguments guix-0.10.0)
@@ -474,13 +476,13 @@ transactions from C or Python.")
 (define-public diffoscope
   (package
     (name "diffoscope")
-    (version "51")
+    (version "54")
     (source (origin
               (method url-fetch)
               (uri (pypi-uri name version))
               (sha256
                (base32
-                "18rn6rrwh586228vnaf1nq0wayh19zbvfc0qmnbys6ln2pv2v007"))))
+                "1dv46ywzcll3mlqgvr48mq7rncizfvsic62c6dd2kdhynb22087n"))))
     (build-system python-build-system)
     (arguments
      `(#:phases (modify-phases %standard-phases
