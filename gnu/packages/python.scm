@@ -1178,15 +1178,15 @@ Python 3.3+.")
 (define-public python-pyicu
   (package
     (name "python-pyicu")
-    (version "1.9.2")
+    (version "1.9.3")
     (source
      (origin
       (method url-fetch)
-      (uri (string-append "https://pypi.python.org/packages/source/P/PyICU/PyICU-"
-                          version ".tar.gz"))
+      (uri (pypi-uri "PyICU" version))
+      (patches (search-patches "python-pyicu-set-time-zone.patch"))
       (sha256
        (base32
-        "1diba0g8md614fvm9yf50paiwdkhj6rd7xwf1rg9mc0pxc0hhn4v"))))
+        "0hps2314w7ddiwhqgw249m3hgqnny7qn542vz26jxr5k5hhrcyhs"))))
     (build-system python-build-system)
     (inputs
      `(("icu4c" ,icu4c)))

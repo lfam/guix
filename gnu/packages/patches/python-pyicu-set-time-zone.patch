@@ -1,0 +1,21 @@
+From 6ab20d48d85638acb3a811c8676f713bd26f0df9 Mon Sep 17 00:00:00 2001
+From: Felix Yan <felixonmars@archlinux.org>
+Date: Sat, 28 May 2016 15:08:44 +0800
+Subject: [PATCH] add setTimeZone in testGetBestPattern (fixes #19)
+
+---
+ test/test_DateTimeParserGenerator.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/test/test_DateTimeParserGenerator.py b/test/test_DateTimeParserGenerator.py
+index 5838e32..de8eb88 100644
+--- a/test/test_DateTimeParserGenerator.py
++++ b/test/test_DateTimeParserGenerator.py
+@@ -71,6 +71,7 @@ def testGetBestPattern(self):
+             for index, skeleton in enumerate(skeletons):
+                 pattern = dtpg.getBestPattern(skeleton)
+                 sdf = SimpleDateFormat(pattern, locale)
++                sdf.setTimeZone(self.tz)
+                 self.assertEqual(sdf.format(self.date), locale_data[index])
+ 
+     def testReplaceFieldType(self):

@@ -743,6 +743,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/python-configobj-setuptools.patch	\
   %D%/packages/patches/python-paste-remove-website-test.patch	\
   %D%/packages/patches/python-paste-remove-timing-test.patch	\
+  %D%/packages/patches/python-pyicu-set-time-zone.patch		\
   %D%/packages/patches/python2-pygobject-2-gi-info-type-error-domain.patch \
   %D%/packages/patches/qt4-ldflags.patch			\
   %D%/packages/patches/rapicorn-isnan.patch			\
