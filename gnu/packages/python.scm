@@ -24,6 +24,7 @@
 ;;; Copyright © 2016 Sou Bunnbu <iyzsong@gmail.com>
 ;;; Copyright © 2016 Troy Sankey <sankeytms@gmail.com>
 ;;; Copyright © 2016 ng0 <ng0@we.make.ritual.n0.is>
+;;; Copyright © 2016 Diane Trout <diane@ghic.org>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -299,8 +300,33 @@ data types.")
 ;; Current 2.x version.
 (define-public python-2 python-2.7)
 
-(define-public python-3.4
+(define-public python-3.5
   (package (inherit python-2)
+    (version "3.5.1")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append "https://www.python.org/ftp/python/"
+                                  version "/Python-" version ".tar.xz"))
+              (patches (search-patches
+                        "python-fix-tests.patch"
+                        "python-fix-tests-py3.5.patch"
+                        "python-3-deterministic-build-info.patch"
+                        "python-3-search-paths.patch"))
+              (patch-flags '("-p0"))
+              (sha256
+               (base32
+                "1j95yx32ggqx8jf13h3c8qfp34ixpyg8ipqcdjmn143d6q67rmf6"))))
+    (arguments (substitute-keyword-arguments (package-arguments python-2)
+                 ((#:tests? _) #t)))
+    (native-search-paths
+     (list (search-path-specification
+            (variable "PYTHONPATH")
+            (files (list (string-append "lib/python"
+                                        (version-major+minor version)
+                                        "/site-packages"))))))))
+
+(define-public python-3.4
+  (package (inherit python-3.5)
     (version "3.4.4")
     (source (origin
               (method url-fetch)
@@ -313,18 +339,10 @@ data types.")
               (patch-flags '("-p0"))
               (sha256
                (base32
-                "18kb5c29w04rj4gyz3jngm72sy8izfnbjlm6ajv6rv2m061d75x7"))))
-    (arguments (substitute-keyword-arguments (package-arguments python-2)
-                 ((#:tests? _) #t)))
-    (native-search-paths
-     (list (search-path-specification
-            (variable "PYTHONPATH")
-            (files (list (string-append "lib/python"
-                                        (version-major+minor version)
-                                        "/site-packages"))))))))
+                "18kb5c29w04rj4gyz3jngm72sy8izfnbjlm6ajv6rv2m061d75x7"))))))
 
 ;; Current 3.x version.
-(define-public python-3 python-3.4)
+(define-public python-3 python-3.5)
 
 ;; Current major version.
 (define-public python python-3)
@@ -346,14 +364,10 @@ data types.")
   (package (inherit python)
     (name "python-minimal")
     (outputs '("out"))
-    (arguments
-     (substitute-keyword-arguments (package-arguments python)
-       ((#:configure-flags cf)
-        `(append ,cf '("--without-system-ffi")))))
-
     ;; OpenSSL is a mandatory dependency of Python 3.x, for urllib;
     ;; zlib is required by 'zipimport', used by pip.
-    (inputs `(("openssl" ,openssl)
+    (inputs `(("libffi" ,libffi) ; for ctypes
+              ("openssl" ,openssl)
               ("zlib" ,zlib)))))
 
 (define* (wrap-python3 python
