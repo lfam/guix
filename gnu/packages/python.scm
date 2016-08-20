@@ -327,7 +327,7 @@ data types.")
 
 (define-public python-3.4
   (package (inherit python-3.5)
-    (version "3.4.4")
+    (version "3.4.5")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://www.python.org/ftp/python/"
@@ -339,7 +339,7 @@ data types.")
               (patch-flags '("-p0"))
               (sha256
                (base32
-                "18kb5c29w04rj4gyz3jngm72sy8izfnbjlm6ajv6rv2m061d75x7"))))))
+                "12l9klp778wklxmckhghniy5hklss8r26995pyd00qbllk4b2r7f"))))))
 
 ;; Current 3.x version.
 (define-public python-3 python-3.5)
