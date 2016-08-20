@@ -302,7 +302,7 @@ data types.")
 
 (define-public python-3.5
   (package (inherit python-2)
-    (version "3.5.1")
+    (version "3.5.2")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://www.python.org/ftp/python/"
@@ -315,7 +315,7 @@ data types.")
               (patch-flags '("-p0"))
               (sha256
                (base32
-                "1j95yx32ggqx8jf13h3c8qfp34ixpyg8ipqcdjmn143d6q67rmf6"))))
+                "0h6a5fr7ram2s483lh0pnmc4ncijb8llnpfdxdcl5dxr01hza400"))))
     (arguments (substitute-keyword-arguments (package-arguments python-2)
                  ((#:tests? _) #t)))
     (native-search-paths
