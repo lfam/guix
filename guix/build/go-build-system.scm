@@ -1,6 +1,6 @@
 ;;; GNU Guix --- Functional package management for GNU
 ;;; Copyright © 2016 Petter <petter@mykolab.ch>
-;;; Copyright © 2017 Leo Famulari <leo@famulari.name>
+;;; Copyright © 2017, 2019 Leo Famulari <leo@famulari.name>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -19,6 +19,7 @@
 
 (define-module (guix build go-build-system)
   #:use-module ((guix build gnu-build-system) #:prefix gnu:)
+  #:use-module (guix build union)
   #:use-module (guix build utils)
   #:use-module (ice-9 match)
   #:use-module (srfi srfi-1)
@@ -110,15 +111,41 @@
 ;;
 ;; Code:
 
+(define* (setup-go-environment #:key inputs outputs #:allow-other-keys)
+  "Prepare a Go build environment for INPUTS and OUTPUTS.  Build a filesystem
+union of INPUTS.  Export GOPATH, which helps the compiler find the source code
+of the package being built and its dependencies, and GOBIN, which determines
+where executables (\"commands\") are installed to.  This phase is sometimes used
+by packages that use (guix build-system gnu) but have a handful of Go
+dependencies, so it should be self-contained."
+  ;; Using the current working directory as GOPATH makes it easier for packagers
+  ;; who need to manipulate the unpacked source code.
+  (setenv "GOPATH" (getcwd))
+  (setenv "GOBIN" (string-append (assoc-ref outputs "out") "/bin"))
+  (let ((tmpdir (tmpnam)))
+    (match (go-inputs inputs)
+      (((names . directories) ...)
+       (union-build tmpdir (filter directory-exists? directories)
+                    #:create-all-directories? #t
+                    #:log-port (%make-void-port "w"))))
+    ;; XXX A little dance because (guix build union) doesn't use mkdir-p.
+    ;; Double-check this puts the source code in the right place while
+    ;; building and installing
+    (copy-recursively tmpdir
+                      (string-append (getenv "GOPATH"))
+                      #:keep-mtime? #t)
+    (delete-file-recursively tmpdir))
+  #t)
+
 (define* (unpack #:key source import-path unpack-path #:allow-other-keys)
-  "Unpack SOURCE in the UNPACK-PATH, or the IMPORT-PATH is the UNPACK-PATH is
-unset.  When SOURCE is a directory, copy it instead of unpacking."
+  "Relative to $GOPATH, unpack SOURCE in the UNPACK-PATH, or the IMPORT-PATH is
+the UNPACK-PATH is unset.  When SOURCE is a directory, copy it instead of
+unpacking."
   (if (string-null? import-path)
       ((display "WARNING: The Go import path is unset.\n")))
   (if (string-null? unpack-path)
       (set! unpack-path import-path))
-  (mkdir "src")
-  (let ((dest (string-append "src/" unpack-path)))
+  (let ((dest (string-append (getenv "GOPATH") "/src/" unpack-path)))
     (mkdir-p dest)
     (if (file-is-directory? source)
       (begin
@@ -127,15 +154,6 @@ unset.  When SOURCE is a directory, copy it instead of unpacking."
       (if (string-suffix? ".zip" source)
         (invoke "unzip" "-d" dest source)
         (invoke "tar" "-C" dest "-xvf" source)))))
-
-(define* (install-source #:key install-source? outputs #:allow-other-keys)
-  "Install the source code to the output directory."
-  (let* ((out (assoc-ref outputs "out"))
-         (source "src")
-         (dest (string-append out "/" source)))
-    (when install-source?
-      (copy-recursively source dest #:keep-mtime? #t))
-    #t))
 
 (define (go-package? name)
   (string-prefix? "go-" name))
@@ -154,27 +172,6 @@ unset.  When SOURCE is a directory, copy it instead of unpacking."
                                directory)))
                 (_ #f))
               inputs))))
-
-(define* (setup-environment #:key inputs outputs #:allow-other-keys)
-  "Export the variables GOPATH and GOBIN, which are based on INPUTS and OUTPUTS,
-respectively."
-  (let ((out (assoc-ref outputs "out")))
-    ;; GOPATH is where Go looks for the source code of the build's dependencies.
-    (set-path-environment-variable "GOPATH"
-                                   ;; XXX Matching "." hints that we could do
-                                   ;; something simpler here...
-                                   (list ".")
-                                   (match (go-inputs inputs)
-                                     (((_ . dir) ...)
-                                      dir)))
-
-    ;; Add the source code of the package being built to GOPATH.
-    (if (getenv "GOPATH")
-      (setenv "GOPATH" (string-append (getcwd) ":" (getenv "GOPATH")))
-      (setenv "GOPATH" (getcwd)))
-    ;; Where to install compiled executable files ('commands' in Go parlance').
-    (setenv "GOBIN" (string-append out "/bin"))
-    #t))
 
 (define* (build #:key import-path #:allow-other-keys)
   "Build the package named by IMPORT-PATH."
@@ -199,16 +196,21 @@ respectively."
     (invoke "go" "test" import-path))
   #t)
 
-(define* (install #:key outputs #:allow-other-keys)
-  "Install the compiled libraries. `go install` installs these files to
-$GOPATH/pkg, so we have to copy them into the output directory manually.
-Compiled executable files should have already been installed to the store based
-on $GOBIN in the build phase."
-  ;; TODO: From go-1.10 onward, the pkg folder should not be needed (see
-  ;; https://lists.gnu.org/archive/html/guix-devel/2018-11/msg00208.html).
-  ;; Remove it?
-  (when (file-exists? "pkg")
-    (copy-recursively "pkg" (string-append (assoc-ref outputs "out") "/pkg")))
+(define* (install #:key install-source? outputs import-path unpack-path #:allow-other-keys)
+  "Install the source code to the primary output directory.  Compiled executable
+files (Go \"commands\") should have already been installed to the store based on
+$GOBIN in the build phase.
+XXX We can't make us of compiled libraries (Go \"packages\")."
+  (when install-source?
+    (if (string-null? import-path)
+        ((display "WARNING: The Go import path is unset.\n")))
+    (if (string-null? unpack-path)
+        (set! unpack-path import-path))
+    (let* ((out (assoc-ref outputs "out"))
+           (source (string-append (getenv "GOPATH") "/src/" unpack-path))
+           (dest (string-append out "/src/" unpack-path)))
+      (mkdir-p dest)
+      (copy-recursively source dest #:keep-mtime? #t)))
   #t)
 
 (define* (remove-store-reference file file-name
@@ -269,9 +271,8 @@ files in OUTPUTS."
     (delete 'bootstrap)
     (delete 'configure)
     (delete 'patch-generated-file-shebangs)
+    (add-before 'unpack 'setup-go-environment setup-go-environment)
     (replace 'unpack unpack)
-    (add-after 'unpack 'install-source install-source)
-    (add-before 'build 'setup-environment setup-environment)
     (replace 'build build)
     (replace 'check check)
     (replace 'install install)
