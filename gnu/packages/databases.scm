@@ -2616,6 +2616,7 @@ transforms idiomatic python function calls to well-formed SQL queries.")
        #:modules ((srfi srfi-1)
                   (guix build go-build-system)
                   (guix build utils))
+       #:install-source? #f
        #:phases
        (let ((all-tools
               '("bsondump" "mongodump" "mongoexport" "mongofiles"
@@ -2635,8 +2636,6 @@ transforms idiomatic python function calls to well-formed SQL queries.")
                  (("skipping restore of system.profile collection\", db)")
                   "skipping restore of system.profile collection\")"))
                #t))
-           ;; We don't need to install the source code for end-user applications
-           (delete 'install-source)
            (replace 'build
              (lambda _
                (for-each (lambda (tool)
