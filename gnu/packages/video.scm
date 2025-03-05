@@ -6828,6 +6828,57 @@ This is a fork of GPAC that builds a shared library to be used by
     (home-page "https://github.com/Comcast/gpac-caption-extractor")
     (license license:asl2.0))))
 
+;;; TODO The Makefile does not define an 'install' target, so we'll have
+;;; to write a custom install phase. For now, the package can be built
+;;; with '--keep-failed' and the program can be run from the build tree.
+(define-public caption-inspector
+  (let ((commit "8e278ac00e0b1c09778c475d7632d572c706c27b")
+        (revision "0"))
+  (package
+    (name "caption-inspector")
+    (version (git-version "0.0" revision commit))
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                     (url "https://github.com/Comcast/caption-inspector")
+                     (commit commit)))
+              (file-name (git-file-name name version))
+              (sha256
+                (base32
+                  "1la7kqhr1pvcbh4lfq655wgq188d0p1sqx44aj6fn4l5ck13fh4n"))))
+    (build-system gnu-build-system)
+    (arguments
+      (list
+        #:tests? #f ; FIXME?
+        #:phases
+        #~(modify-phases %standard-phases
+           ;; TODO Add custom 'install' phase (see above)
+           (delete 'configure)
+           (add-after 'unpack 'patch-Makefile
+             (lambda _
+               (substitute* "src/Makefile"
+                 (("mkdir") "mkdir -p")
+                 (("/usr/local") #$output)))))))
+    (native-inputs
+      (list clang))
+    (inputs
+      (list
+        ffmpeg-4 ; The latest version of FFmpeg supported by this package
+        gpac-caption-extractor
+        mediainfo
+        (list util-linux "lib"))) ; libuuid
+    (synopsis "CEA-608 and CEA-708 closed captions decoder")
+    (description "The Caption Inspector project builds a C library, a C
+executable, and (optionally) a Docker image that can be used to extract and
+decode closed captions from various video or caption file formats.  Caption
+Inspector supports CEA-608 and CEA-708 in MPEG-2 and MPEG-4 (.mpg, .ts,
+and .mp4 containers), @acronym{MCC, MacCaption Closed Captions}, and
+@acronym{SCC, Scenarist Closed Captions} files.  Caption Inspector has a plugin
+pipeline architecture that can be configured in various ways and allows the user
+to add new plugins to perform various transformations.")
+    (home-page "https://comcast.github.io/caption-inspector/")
+    (license license:asl2.0))))
+
 (define-public video-contact-sheet
   (package
    (name "video-contact-sheet")
