@@ -24,7 +24,7 @@
 ;;; Copyright © 2018 Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2018-2022 Marius Bakke <marius@gnu.org>
 ;;; Copyright © 2018, 2019, 2020 Pierre Neidhardt <mail@ambrevar.xyz>
-;;; Copyright © 2018, 2019, 2020, 2022 Leo Famulari <leo@famulari.name>
+;;; Copyright © 2018, 2019, 2020, 2022, 2025 Leo Famulari <leo@famulari.name>
 ;;; Copyright © 2018 Brendan Tildesley <mail@brendan.scot>
 ;;; Copyright © 2018 Arun Isaac <arunisaac@systemreboot.net>
 ;;; Copyright © 2018 Björn Höfling <bjoern.hoefling@bjoernhoefling.de>
@@ -166,6 +166,7 @@
   #:use-module (gnu packages libidn)
   #:use-module (gnu packages libusb)
   #:use-module (gnu packages linux)
+  #:use-module (gnu packages llvm)
   #:use-module (gnu packages lua)
   #:use-module (gnu packages man)
   #:use-module (gnu packages markup)
@@ -6781,6 +6782,51 @@ information) NALUs (Network Abstraction Layer Unit) for inclusion into an h.264
 elementary stream are provided.")
     (home-page "https://github.com/szatmary/libcaption")
     (license license:expat)))
+
+(define-public gpac-caption-extractor
+  (let ((commit "bf3a79413e2d83e3b66429bfbf9bb0ef0fd52950")
+        (revision "0"))
+  (package
+    (name "gpac-caption-extractor")
+    (version (git-version "0.8.0" revision commit))
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                     (url "https://github.com/Comcast/gpac-caption-extractor")
+                     (commit commit)))
+              (file-name (git-file-name name version))
+              (sha256
+                (base32
+                  "0hy1qdd1qqwzyszy6xg38b3cjhk7z9ddi4ri40snqfd0f7n18mm9"))))
+    (build-system gnu-build-system)
+    (arguments
+      (list
+        #:tests? #f ; FIXME?
+        #:phases
+        #~(modify-phases %standard-phases
+           (delete 'configure)
+           (add-after 'unpack 'patch-Makefile
+             (lambda _
+               (substitute* "src/Makefile"
+                 (("mkdir") "mkdir -p")
+                 (("/usr/local") #$output))))
+           (add-before 'install 'make-output-directories
+             (lambda _
+               (mkdir-p (string-append #$output "/lib"))
+               (mkdir-p (string-append #$output "/include")))))))
+    (native-inputs
+      (list clang))
+    (synopsis "Multimedia packaging, multiplexing and streaming")
+    (description "GPAC provides video streaming and multimedia transcoding,
+packaging and delivery. By packaging, we mean taking media (e.g. audio, video,
+subtitles, images, metadata, etc) and putting them together for a purpose.  For
+example, this purpose can be local mezzanine storage (for later processing),
+playback (single file), streaming, encryption or archiving.
+
+This is a fork of GPAC that builds a shared library to be used by
+@code{caption-inspector}.")
+    (home-page "https://github.com/Comcast/gpac-caption-extractor")
+    (license license:asl2.0))))
 
 (define-public video-contact-sheet
   (package
